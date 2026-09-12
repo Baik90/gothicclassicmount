@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ public sealed class GothicClassicMount : BaseGameMount
 	public new const long SteamAppId = 65540;
 	private const string MountVersion = "gothic_classic";
 	private const string InternalMountRoot = "_gothicruntime";
+	private const string GothicZenVersion = "108";
 
 	private readonly Dictionary<string, string> _textureLookup = new( StringComparer.OrdinalIgnoreCase );
 	private readonly Dictionary<string, GothicAssetDescriptor> _assetDescriptors = new( StringComparer.OrdinalIgnoreCase );
@@ -31,6 +33,7 @@ public sealed class GothicClassicMount : BaseGameMount
 
 	public string InstallDirectory { get; private set; } = string.Empty;
 	public object VirtualFileSystem { get; private set; }
+	public object ProcessedWorldFileSystem { get; private set; }
 	public IReadOnlyList<string> MountedTexturePaths => _mountedTexturePaths;
 	public IReadOnlyList<string> MountedModelPaths => _mountedModelPaths;
 	public IReadOnlyList<string> MountedWorldPaths => _mountedWorldPaths;
@@ -75,6 +78,7 @@ public sealed class GothicClassicMount : BaseGameMount
 		_mountedTexturePaths.Clear();
 		_mountedModelPaths.Clear();
 		_mountedWorldPaths.Clear();
+		ProcessedWorldFileSystem = null;
 
 		VirtualFileSystem = BuildVirtualFileSystem();
 
@@ -99,6 +103,7 @@ public sealed class GothicClassicMount : BaseGameMount
 			{
 				_assetDescriptors[file.VirtualPath] = BuildAssetDescriptor( file.VirtualPath, true );
 				_mountedWorldPaths.Add( file.VirtualPath );
+				context.Add( ResourceType.Scene, ToInternalMountedWorldScenePath( file.VirtualPath ), new GothicWorldSceneResource( file.VirtualPath ) );
 				context.Add( ResourceType.Model, ToInternalMountedWorldPath( file.VirtualPath ), new GothicWorldResource( file.VirtualPath ) );
 			}
 			else if ( IsModelExtension( extension ) )
@@ -173,7 +178,7 @@ public sealed class GothicClassicMount : BaseGameMount
 			DebugSource = "null_descriptor"
 		};
 
-		var cacheKey = materialInfo.CacheKey;
+		var cacheKey = "alpha_v1_" + materialInfo.CacheKey;
 		lock ( _cacheLock )
 		{
 			if ( _materialCache.TryGetValue( cacheKey, out var cachedMaterial ) )
@@ -187,7 +192,7 @@ public sealed class GothicClassicMount : BaseGameMount
 			Log.Info( $"Gothic material '{materialInfo.MaterialName}' did not resolve to a texture. Source: {materialInfo.DebugSource}" );
 		}
 
-		var material = SMaterial.Create( safeMaterialName, "simple_color" );
+		var material = SMaterial.Create( safeMaterialName, "gothic_surface" );
 		material.Attributes?.SetCombo( "D_RENDER_BACKFACES", true );
 		material.Set( "Color", materialInfo.TexturePath is null ? Sandbox.Texture.White : LoadTexture( materialInfo.TexturePath ) );
 
@@ -207,6 +212,18 @@ public sealed class GothicClassicMount : BaseGameMount
 		throw new InvalidOperationException( $"No Gothic asset descriptor was prepared for '{virtualPath}'." );
 	}
 
+	internal object CreateWorld( string virtualPath )
+	{
+		if ( ProcessedWorldFileSystem is not null )
+		{
+			var processedNode = ZenKitRuntime.ResolveNode( ProcessedWorldFileSystem, virtualPath );
+			if ( processedNode is not null )
+				return ZenKitRuntime.CreateWorld( ProcessedWorldFileSystem, virtualPath );
+		}
+
+		return ZenKitRuntime.CreateWorld( RequireVfs(), virtualPath );
+	}
+
 	public string GetMountedModelResourcePath( string virtualPath )
 	{
 		return ToInternalMountedModelPath( virtualPath );
@@ -215,6 +232,11 @@ public sealed class GothicClassicMount : BaseGameMount
 	public string GetMountedWorldResourcePath( string virtualPath )
 	{
 		return ToInternalMountedWorldPath( virtualPath );
+	}
+
+	public string GetMountedWorldSceneResourcePath( string virtualPath )
+	{
+		return ToInternalMountedWorldScenePath( virtualPath );
 	}
 
 	public string GetMountedTextureResourcePath( string virtualPath )
@@ -245,6 +267,7 @@ public sealed class GothicClassicMount : BaseGameMount
 	private object BuildVirtualFileSystem()
 	{
 		var vfs = ZenKitRuntime.CreateVfs();
+		ProcessedWorldFileSystem = BuildProcessedWorldFileSystem();
 		var archiveDirectories = new[]
 		{
 			IOPath.Combine( InstallDirectory, "Data" ),
@@ -261,6 +284,96 @@ public sealed class GothicClassicMount : BaseGameMount
 		}
 
 		return vfs;
+	}
+
+	private object BuildProcessedWorldFileSystem()
+	{
+		try
+		{
+			var sourceWorldRoot = IOPath.Combine( InstallDirectory, "VDFS-Tool", "_WORK", "DATA", "WORLDS" );
+			if ( !IODirectory.Exists( sourceWorldRoot ) )
+				return null;
+
+			var gothicZenPath = FindGothicZenExecutable();
+			if ( string.IsNullOrWhiteSpace( gothicZenPath ) || !File.Exists( gothicZenPath ) )
+			{
+				Log.Warning( "GothicZEN executable was not found. Falling back to original world ZEN files." );
+				return null;
+			}
+
+			var cacheRoot = GetProcessedWorldCacheRoot();
+			IODirectory.CreateDirectory( cacheRoot );
+
+			var wroteAny = false;
+			foreach ( var sourcePath in IODirectory.EnumerateFiles( sourceWorldRoot, "*.ZEN", SearchOption.TopDirectoryOnly ) )
+			{
+				var fileName = IOPath.GetFileName( sourcePath );
+				var virtualPath = $"_WORK/DATA/WORLDS/{fileName}";
+				if ( !IsRenderableWorld( virtualPath ) )
+					continue;
+
+				var outputPath = IOPath.Combine( cacheRoot, "_WORK", "DATA", "WORLDS", fileName );
+				IODirectory.CreateDirectory( IOPath.GetDirectoryName( outputPath )! );
+				if ( EnsureProcessedWorldFile( gothicZenPath, sourcePath, outputPath ) )
+					wroteAny = true;
+			}
+
+			var cachedWorldRoot = IOPath.Combine( cacheRoot, "_WORK" );
+			if ( !IODirectory.Exists( cachedWorldRoot ) )
+				return null;
+
+			var vfs = ZenKitRuntime.CreateVfs();
+			ZenKitRuntime.MountDisk( vfs, cacheRoot );
+			Log.Info( $"Mounted processed Gothic world cache '{cacheRoot}' (Updated={wroteAny})" );
+			return vfs;
+		}
+		catch ( Exception exception )
+		{
+			Log.Warning( $"Failed to build processed Gothic world cache: {exception}" );
+			return null;
+		}
+	}
+
+	private bool EnsureProcessedWorldFile( string gothicZenPath, string sourcePath, string outputPath )
+	{
+		var sourceInfo = new FileInfo( sourcePath );
+		var outputInfo = new FileInfo( outputPath );
+		if ( outputInfo.Exists && outputInfo.LastWriteTimeUtc >= sourceInfo.LastWriteTimeUtc )
+			return false;
+
+		var startInfo = new ProcessStartInfo
+		{
+			FileName = gothicZenPath,
+			Arguments = $"{GothicZenVersion} {GothicZenVersion} \"{sourcePath}\" \"{outputPath}\"",
+			UseShellExecute = false,
+			CreateNoWindow = true,
+			WorkingDirectory = IOPath.GetDirectoryName( gothicZenPath ) ?? InstallDirectory
+		};
+
+		using var process = Process.Start( startInfo );
+		process?.WaitForExit();
+		if ( process is null || process.ExitCode != 0 || !File.Exists( outputPath ) )
+			throw new InvalidOperationException( $"GothicZEN failed for '{sourcePath}'." );
+
+		Log.Info( $"Processed Gothic world '{sourcePath}' -> '{outputPath}'" );
+		return true;
+	}
+
+	private string GetProcessedWorldCacheRoot()
+	{
+		return IOPath.GetFullPath( IOPath.Combine( Environment.CurrentDirectory, "addons", "gothicclassicmount", ".cache", "gothiczen" ) );
+	}
+
+	private string FindGothicZenExecutable()
+	{
+		var candidates = new[]
+		{
+			IOPath.Combine( Environment.GetFolderPath( Environment.SpecialFolder.DesktopDirectory ), "GothicZEN", "Binaries", "x64", "GothicZEN.exe" ),
+			IOPath.Combine( InstallDirectory, "GothicZEN.exe" ),
+			IOPath.Combine( InstallDirectory, "Tools", "GothicZEN.exe" )
+		};
+
+		return candidates.FirstOrDefault( File.Exists );
 	}
 
 	private IEnumerable<(string VirtualPath, object Node)> EnumerateFiles( object root )
@@ -385,7 +498,7 @@ public sealed class GothicClassicMount : BaseGameMount
 
 	private IReadOnlyList<GothicMaterialDescriptor> BuildWorldMaterialDescriptors( string virtualPath )
 	{
-		dynamic world = ZenKitRuntime.CreateWorld( RequireVfs(), virtualPath );
+		dynamic world = CreateWorld( virtualPath );
 		var mesh = ZenKitRuntime.GetProperty( world, "Mesh" );
 		if ( mesh is null )
 			return Array.Empty<GothicMaterialDescriptor>();
@@ -733,7 +846,7 @@ public sealed class GothicClassicMount : BaseGameMount
 	{
 		try
 		{
-			dynamic world = ZenKitRuntime.CreateWorld( RequireVfs(), virtualPath );
+			dynamic world = CreateWorld( virtualPath );
 			var mesh = ZenKitRuntime.GetProperty( world, "Mesh" );
 			if ( mesh is null )
 				return false;
@@ -776,6 +889,13 @@ public sealed class GothicClassicMount : BaseGameMount
 			.ToLowerInvariant();
 	}
 
+	private static string ToEditorWorldScenePath( string virtualPath )
+	{
+		return IOPath.Combine( "worlds", MountVersion, IOPath.ChangeExtension( virtualPath, ".scene" ) )
+			.Replace( '\\', '/' )
+			.ToLowerInvariant();
+	}
+
 	private static string ToInternalMountedTexturePath( string virtualPath )
 	{
 		return IOPath.Combine( InternalMountRoot, ToEditorTexturePath( virtualPath ) )
@@ -793,6 +913,13 @@ public sealed class GothicClassicMount : BaseGameMount
 	private static string ToInternalMountedWorldPath( string virtualPath )
 	{
 		return IOPath.Combine( InternalMountRoot, ToEditorWorldPath( virtualPath ) )
+			.Replace( '\\', '/' )
+			.ToLowerInvariant();
+	}
+
+	private static string ToInternalMountedWorldScenePath( string virtualPath )
+	{
+		return IOPath.Combine( InternalMountRoot, ToEditorWorldScenePath( virtualPath ) )
 			.Replace( '\\', '/' )
 			.ToLowerInvariant();
 	}

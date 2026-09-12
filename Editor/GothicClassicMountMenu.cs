@@ -8,6 +8,31 @@ namespace GothicClassicMount;
 
 public static class GothicClassicMountMenu
 {
+	[ConCmd( "gothic_rebuild_worlds" )]
+	[Menu( "Editor", "Gothic Classic Mount/Rebuild World Models" )]
+	public static void RebuildWorldModels()
+	{
+		var mount = Directory.Get( "gothicclassic" ) as GothicClassicMount;
+		var scene = SceneEditorSession.Active?.Scene;
+		if ( mount is null || scene is null ) return;
+		var rebuilt = 0;
+		foreach ( var renderer in scene.GetAllComponents<ModelRenderer>().ToArray() )
+		{
+			var modelName = renderer.Model?.Name;
+			var worldPath = mount.MountedWorldPaths.FirstOrDefault( path =>
+				string.Equals( modelName, mount.GetMountedResourceUri( mount.GetMountedWorldResourcePath( path ) ), StringComparison.OrdinalIgnoreCase ) ||
+				string.Equals( modelName, mount.GetMountedWorldResourcePath( path ), StringComparison.OrdinalIgnoreCase ) ||
+				string.Equals( modelName, mount.GetEditorWorldAssetPath( path ), StringComparison.OrdinalIgnoreCase ) );
+			if ( worldPath is null ) continue;
+			renderer.Model = GothicGeometryBuilder.BuildWorldModel( mount, worldPath, mount.GetMountedResourceUri( mount.GetMountedWorldResourcePath( worldPath ) ) );
+			var collider = renderer.GameObject.Components.Get<ModelCollider>() ?? renderer.GameObject.Components.Create<ModelCollider>();
+			collider.Model = renderer.Model;
+			collider.Static = true;
+			rebuilt++;
+		}
+		Log.Info( $"Rebuilt {rebuilt} Gothic world renderers in the active scene." );
+	}
+
 	[Menu( "Editor", "Gothic Classic Mount/Mount Assets" )]
 	public static void MountAssets()
 	{
@@ -119,14 +144,11 @@ public static class GothicClassicMountMenu
 			var firstWorldPath = mount.MountedWorldPaths.FirstOrDefault();
 			if ( !string.IsNullOrWhiteSpace( firstWorldPath ) )
 			{
-				var editorWorldPath = mount.GetEditorWorldAssetPath( firstWorldPath );
-				var runtimeWorldPath = mount.GetMountedWorldResourcePath( firstWorldPath );
-				var runtimeWorldUri = mount.GetMountedResourceUri( runtimeWorldPath );
-				var worldAsset = AssetSystem.FindByPath( editorWorldPath );
-				var worldAssetByUri = AssetSystem.FindByPath( runtimeWorldUri );
-				var loadedEditorWorld = Model.Load( editorWorldPath );
-				var loadedRuntimeWorld = Model.Load( runtimeWorldUri );
-				Log.Info( $"Gothic mounted world validation: EditorPath={editorWorldPath}; RuntimeUri={runtimeWorldUri}; AssetPath={(worldAsset is null ? "<null>" : worldAsset.Path)}; AssetUri={(worldAssetByUri is null ? "<null>" : worldAssetByUri.Path)}; LoadedEditor={(loadedEditorWorld is null ? "<null>" : loadedEditorWorld.Name)}; LoadedRuntime={(loadedRuntimeWorld is null ? "<null>" : loadedRuntimeWorld.Name)}" );
+				var runtimeWorldScenePath = mount.GetMountedWorldSceneResourcePath( firstWorldPath );
+				var runtimeWorldSceneUri = mount.GetMountedResourceUri( runtimeWorldScenePath );
+				var worldSceneAssetByUri = AssetSystem.FindByPath( runtimeWorldSceneUri );
+				var loadedRuntimeScene = SceneFile.Load( runtimeWorldSceneUri );
+				Log.Info( $"Gothic mounted world scene validation: RuntimeUri={runtimeWorldSceneUri}; AssetUri={(worldSceneAssetByUri is null ? "<null>" : worldSceneAssetByUri.Path)}; LoadedRuntimeScene={(loadedRuntimeScene is null ? "<null>" : loadedRuntimeScene.ResourcePath)}" );
 			}
 
 			EditorUtility.DisplayDialog( "Gothic Classic Mount", "Mounted-Path-Validierung ausgefuehrt. Details stehen in der Console.", "OK" );

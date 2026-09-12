@@ -13,13 +13,147 @@ internal static class GothicGeometryBuilder
 	public static Model BuildWorldModel( GothicClassicMount host, string virtualPath, string resourcePath )
 	{
 		var descriptor = host.GetDescriptor( virtualPath );
-		dynamic world = ZenKitRuntime.CreateWorld( host.RequireVfs(), virtualPath );
+		dynamic world = host.CreateWorld( virtualPath );
 		var mesh = world.Mesh;
 		if ( mesh is null )
 			throw new InvalidOperationException( $"World '{virtualPath}' did not expose a mesh." );
 
 		LogWorldDiagnosticsOnce( world, mesh, virtualPath );
-		return BuildModelFromMesh( host, resourcePath, mesh, descriptor );
+		var polygonCount = ((IEnumerable)mesh.Polygons).Cast<object>().Count();
+		var worldPolygons = GetWorldLeafPolygons( world, polygonCount, virtualPath );
+		List<Sandbox.Mesh> renderMeshes = BuildRenderMeshesFromMesh( host, mesh, descriptor, worldPolygons );
+		AddWorldTrees( host, world, renderMeshes, virtualPath );
+		if ( renderMeshes.Count == 0 )
+			throw new InvalidOperationException( $"Mesh '{resourcePath}' had no polygons." );
+		var builder = Model.Builder.WithName( resourcePath );
+		builder.AddMeshes( renderMeshes.ToArray() );
+		AddWorldCollision( builder, mesh, worldPolygons, virtualPath );
+		return builder.Create();
+	}
+
+	private static void AddWorldCollision( ModelBuilder builder, object mesh, HashSet<int> worldPolygons, string worldPath )
+	{
+		var materials = ((IEnumerable)ZenKitRuntime.GetProperty( mesh, "Materials" )).Cast<object>().ToList();
+		var positions = ((IEnumerable)ZenKitRuntime.GetProperty( mesh, "Positions" )).Cast<object>()
+			.Select( p => (Vector3)ToSandboxPosition( p ) ).ToList();
+		var vertices = new List<Vector3>();
+		var indices = new List<int>();
+		var vertexMap = new Dictionary<int, int>();
+		var polygonIndex = 0;
+		foreach ( var polygon in (IEnumerable)ZenKitRuntime.GetProperty( mesh, "Polygons" ) )
+		{
+			var index = polygonIndex++;
+			if ( worldPolygons is not null && !worldPolygons.Contains( index ) ) continue;
+			if ( ZenKitRuntime.GetProperty<bool>( polygon, "IsPortal" ) ||
+				ZenKitRuntime.GetProperty<bool>( polygon, "IsGhostOccluder" ) ) continue;
+			var materialIndex = ZenKitRuntime.GetProperty<int>( polygon, "MaterialIndex" );
+			if ( materialIndex >= 0 && materialIndex < materials.Count &&
+				ZenKitRuntime.GetProperty<bool>( materials[materialIndex], "DisableCollision" ) ) continue;
+
+			// Alpha is a rendering property: invisible barriers can still have collision.
+			var corners = ((IEnumerable)ZenKitRuntime.GetProperty( polygon, "PositionIndices" )).Cast<object>()
+				.Select( Convert.ToInt32 ).ToArray();
+			if ( corners.Length < 3 || corners.Any( i => i < 0 || i >= positions.Count ) ) continue;
+			for ( var i = 1; i + 1 < corners.Length; i++ )
+			{
+				var a = corners[0];
+				var b = corners[i];
+				var c = corners[i + 1];
+				if ( Vector3.Cross( positions[b] - positions[a], positions[c] - positions[a] ).LengthSquared < 0.000001f ) continue;
+				// This order gives outward collision normals after the Gothic-to-sbox axis conversion.
+				indices.Add( Vertex( a ) );
+				indices.Add( Vertex( b ) );
+				indices.Add( Vertex( c ) );
+			}
+		}
+		if ( indices.Count > 0 ) builder.AddCollisionMesh( vertices, indices );
+		Log.Info( $"Gothic world collision [{worldPath}]: Vertices={vertices.Count} Triangles={indices.Count / 3}" );
+
+		int Vertex( int index )
+		{
+			if ( vertexMap.TryGetValue( index, out var mapped ) ) return mapped;
+			mapped = vertices.Count;
+			vertexMap.Add( index, mapped );
+			vertices.Add( positions[index] );
+			return mapped;
+		}
+	}
+
+	private static void AddWorldTrees( GothicClassicMount host, object world, List<Sandbox.Mesh> renderMeshes, string worldPath )
+	{
+		if ( ZenKitRuntime.GetProperty( world, "RootObjects" ) is not IEnumerable roots ) return;
+		var modelPaths = host.MountedModelPaths.Where( p => p.EndsWith( ".MRM", StringComparison.OrdinalIgnoreCase ) )
+			.GroupBy( p => Path.GetFileNameWithoutExtension( p ), StringComparer.OrdinalIgnoreCase )
+			.ToDictionary( g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase );
+		var sourceMeshes = new Dictionary<string, object>( StringComparer.OrdinalIgnoreCase );
+		var count = 0;
+		foreach ( var root in roots ) Visit( root );
+		Log.Info( $"Gothic world tree visuals [{worldPath}]: Imported={count}" );
+
+		void Visit( object vob )
+		{
+			var visual = ReadVisualPath( vob );
+			if ( ZenKitRuntime.GetProperty<bool>( vob, "ShowVisual" ) &&
+				!string.IsNullOrWhiteSpace( visual ) &&
+				Path.GetFileNameWithoutExtension( visual ).Contains( "TREE", StringComparison.OrdinalIgnoreCase ) &&
+				modelPaths.TryGetValue( Path.GetFileNameWithoutExtension( visual ), out var modelPath ) )
+			{
+				if ( !sourceMeshes.TryGetValue( modelPath, out var sourceMesh ) )
+				{
+					sourceMesh = ZenKitRuntime.CreateMultiResolutionMesh( host.RequireVfs(), modelPath );
+					sourceMeshes.Add( modelPath, sourceMesh );
+				}
+				var rotation = ZenKitRuntime.GetProperty( vob, "Rotation" );
+				Vector3 translation = ToSandboxPosition( ZenKitRuntime.GetProperty( vob, "Position" ) );
+				float M( string field ) => ZenKitRuntime.GetFieldValue<float>( rotation, field );
+				var row1 = new Vector3( M( "M11" ), M( "M12" ), M( "M13" ) );
+				var row2 = new Vector3( M( "M21" ), M( "M22" ), M( "M23" ) );
+				var row3 = new Vector3( M( "M31" ), M( "M32" ), M( "M33" ) );
+				Vector3 TransformPoint( Vector3 position )
+				{
+					var gothic = new Vector3( position.x, position.z, position.y );
+					return new Vector3( Vector3.Dot( row1, gothic ), Vector3.Dot( row3, gothic ), Vector3.Dot( row2, gothic ) ) + translation;
+				}
+				var materialIndex = 0;
+				renderMeshes.AddRange( BuildRenderMeshes( host, sourceMesh, host.GetDescriptor( modelPath ), ref materialIndex, TransformPoint ) );
+				count++;
+			}
+			if ( ZenKitRuntime.GetProperty( vob, "Children" ) is IEnumerable children )
+				foreach ( var child in children ) Visit( child );
+		}
+	}
+
+	private static HashSet<int> GetWorldLeafPolygons( object world, int polygonCount, string virtualPath )
+	{
+		var bsp = ZenKitRuntime.GetProperty( world, "BspTree" );
+		if ( ZenKitRuntime.GetProperty( bsp, "LeafPolygonIndices" ) is not IEnumerable leafIndices )
+		{
+			Log.Warning( $"Gothic world '{virtualPath}' has no BSP leaf references; importing all polygons." );
+			return null;
+		}
+
+		// These are mesh polygon indices, already resolved from the BSP leaf ranges.
+		// Internal BSP nodes also reference coarse LOD geometry; do not include them.
+		var selected = new HashSet<int>();
+		foreach ( var rawIndex in leafIndices )
+		{
+			var index = Convert.ToInt64( rawIndex );
+			if ( index < 0 || index >= polygonCount )
+			{
+				Log.Warning( $"Gothic world '{virtualPath}' has an invalid BSP polygon index {index}; importing all polygons." );
+				return null;
+			}
+			selected.Add( (int)index );
+		}
+
+		if ( selected.Count == 0 )
+		{
+			Log.Warning( $"Gothic world '{virtualPath}' has no BSP leaf polygons; importing all polygons." );
+			return null;
+		}
+
+		Log.Info( $"Gothic world BSP filter [{virtualPath}]: Total={polygonCount} Retained={selected.Count} Skipped={polygonCount - selected.Count}" );
+		return selected;
 	}
 
 	public static Model BuildModel( GothicClassicMount host, string virtualPath, string resourcePath )
@@ -89,9 +223,9 @@ internal static class GothicGeometryBuilder
 		return builder.Create();
 	}
 
-	private static Model BuildModelFromMesh( GothicClassicMount host, string name, dynamic mesh, GothicClassicMount.GothicAssetDescriptor descriptor )
+	private static Model BuildModelFromMesh( GothicClassicMount host, string name, dynamic mesh, GothicClassicMount.GothicAssetDescriptor descriptor, HashSet<int> worldPolygons = null )
 	{
-		var meshes = BuildRenderMeshesFromMesh( host, mesh, descriptor );
+		var meshes = BuildRenderMeshesFromMesh( host, mesh, descriptor, worldPolygons );
 		if ( meshes.Count == 0 )
 			throw new InvalidOperationException( $"Mesh '{name}' had no polygons." );
 
@@ -100,7 +234,7 @@ internal static class GothicGeometryBuilder
 		return builder.Create();
 	}
 
-	private static List<Sandbox.Mesh> BuildRenderMeshes( GothicClassicMount host, object meshObject, GothicClassicMount.GothicAssetDescriptor descriptor, ref int materialIndex )
+	private static List<Sandbox.Mesh> BuildRenderMeshes( GothicClassicMount host, object meshObject, GothicClassicMount.GothicAssetDescriptor descriptor, ref int materialIndex, Func<Vector3, Vector3> transformPoint = null )
 	{
 		dynamic mesh = meshObject;
 		var result = new List<Sandbox.Mesh>();
@@ -123,6 +257,16 @@ internal static class GothicGeometryBuilder
 			if ( vertices.Count == 0 )
 				continue;
 
+			if ( transformPoint is not null )
+			{
+				for ( var i = 0; i < vertices.Count; i++ )
+				{
+					var vertex = vertices[i];
+					vertex.position = transformPoint( vertex.position );
+					vertices[i] = vertex;
+				}
+			}
+
 			SmoothNormals( vertices, indices );
 
 			result.Add( CreateSandboxMesh( host.LoadMaterial( ResolveMaterialDescriptor( descriptor, materialIndex ) ), vertices, indices ) );
@@ -132,30 +276,44 @@ internal static class GothicGeometryBuilder
 		return result;
 	}
 
-	private static List<Sandbox.Mesh> BuildRenderMeshesFromMesh( GothicClassicMount host, dynamic mesh, GothicClassicMount.GothicAssetDescriptor descriptor )
+	private static List<Sandbox.Mesh> BuildRenderMeshesFromMesh( GothicClassicMount host, dynamic mesh, GothicClassicMount.GothicAssetDescriptor descriptor, HashSet<int> worldPolygons )
 	{
 		var grouped = new Dictionary<int, (List<GothicVertex> Vertices, List<int> Indices)>();
-		var skippedWorldMaterials = descriptor?.IsWorld == true
-			? new Dictionary<string, int>( StringComparer.OrdinalIgnoreCase )
-			: null;
+		var materials = ((IEnumerable)mesh.Materials).Cast<object>().ToList();
+		var helperMaterials = new HashSet<int>();
+		if ( descriptor?.IsWorld == true )
+		{
+			for ( var i = 0; i < materials.Count; i++ )
+			{
+				var materialName = ZenKitRuntime.GetProperty<string>( materials[i], "Name" )?.Trim() ?? "";
+				if ( materialName.Equals( "GHOSTOCCLUDER", StringComparison.OrdinalIgnoreCase ) ||
+					materialName.Equals( "Z_PORTALMAT", StringComparison.OrdinalIgnoreCase ) ||
+					materialName.StartsWith( "P:", StringComparison.OrdinalIgnoreCase ) )
+				{
+					helperMaterials.Add( i );
+				}
+			}
+		}
+		var skippedHelpers = 0;
 		var polygonIndex = 0;
 		foreach ( var polygon in (IEnumerable)mesh.Polygons )
 		{
+			var currentIndex = polygonIndex++;
+			if ( worldPolygons is not null && !worldPolygons.Contains( currentIndex ) )
+				continue;
+
+			// Explicit visibility helper materials are separate from alpha-textured surfaces.
+			var materialIndex = ZenKitRuntime.GetProperty<int>( polygon, "MaterialIndex" );
+			if ( helperMaterials.Contains( materialIndex ) )
+			{
+				skippedHelpers++;
+				continue;
+			}
+
 			var positionIndices = ((IEnumerable)ZenKitRuntime.GetProperty( polygon, "PositionIndices" )).Cast<object>().ToList();
 			var featureIndices = ((IEnumerable)ZenKitRuntime.GetProperty( polygon, "FeatureIndices" )).Cast<object>().ToList();
 			if ( positionIndices.Count < 3 || featureIndices.Count < 3 )
 			{
-				polygonIndex++;
-				continue;
-			}
-
-			var materialIndex = ZenKitRuntime.GetProperty<int>( polygon, "MaterialIndex" );
-			var materialDescriptor = ResolveMaterialDescriptor( descriptor, materialIndex );
-			if ( descriptor?.IsWorld == true && ShouldSkipWorldMaterial( materialDescriptor ) )
-			{
-				var key = materialDescriptor?.MaterialName ?? $"material_{materialIndex}";
-				skippedWorldMaterials[key] = skippedWorldMaterials.TryGetValue( key, out var current ) ? current + 1 : 1;
-				polygonIndex++;
 				continue;
 			}
 
@@ -170,20 +328,12 @@ internal static class GothicGeometryBuilder
 				AddPolygonTriangle( mesh, polygon, 0, i, i + 1, buffers.Vertices, buffers.Indices );
 			}
 
-			polygonIndex++;
 		}
 
-		if ( skippedWorldMaterials is not null && skippedWorldMaterials.Count > 0 )
-		{
-			var summary = string.Join( ", ", skippedWorldMaterials
-				.OrderByDescending( x => x.Value )
-				.Take( 12 )
-				.Select( x => $"{x.Key}:{x.Value}" ) );
-			Log.Info( $"Skipped Gothic world polygons [{descriptor.VirtualPath}]: {summary}" );
-		}
+		if ( skippedHelpers > 0 )
+			Log.Info( $"Gothic world visibility helpers skipped [{descriptor.VirtualPath}]: {skippedHelpers}" );
 
 		var meshes = new List<Sandbox.Mesh>();
-		var materials = ((IEnumerable)mesh.Materials).Cast<object>().ToList();
 		foreach ( var pair in grouped.OrderBy( x => x.Key ) )
 		{
 			if ( pair.Value.Vertices.Count == 0 )
@@ -195,17 +345,6 @@ internal static class GothicGeometryBuilder
 		}
 
 		return meshes;
-	}
-
-	private static bool ShouldSkipWorldMaterial( GothicClassicMount.GothicMaterialDescriptor descriptor )
-	{
-		var name = descriptor?.MaterialName;
-		if ( string.IsNullOrWhiteSpace( name ) )
-			return false;
-
-		return name.Contains( "FAR", StringComparison.OrdinalIgnoreCase )
-			|| name.Contains( "OCCLUDER", StringComparison.OrdinalIgnoreCase )
-			|| name.Contains( "PORTAL", StringComparison.OrdinalIgnoreCase );
 	}
 
 	private static List<WorldMeshComponent> BuildWorldMeshComponents( dynamic mesh )
@@ -342,7 +481,7 @@ internal static class GothicGeometryBuilder
 		{
 			TraverseVobs( rootVob, 0 );
 		}
-		else if ( ZenKitRuntime.GetProperty( world, "Vobs" ) is IEnumerable directVobs )
+		else if ( (ZenKitRuntime.GetProperty( world, "RootObjects" ) ?? ZenKitRuntime.GetProperty( world, "Vobs" )) is IEnumerable directVobs )
 		{
 			foreach ( var vob in directVobs )
 				TraverseVobs( vob, 0 );
@@ -609,4 +748,5 @@ internal static class GothicGeometryBuilder
 		public List<Vector3> Points { get; } = new();
 		public BBox Bounds { get; set; }
 	}
+
 }

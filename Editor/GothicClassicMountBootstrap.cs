@@ -94,15 +94,13 @@ internal static class GothicClassicMountBootstrap
 
 			try
 			{
-				var editorWorldPath = mount.GetEditorWorldAssetPath( firstWorldPath );
-				var runtimeWorldUri = mount.GetMountedResourceUri( mount.GetMountedWorldResourcePath( firstWorldPath ) );
-				var loadedEditorWorld = Model.Load( editorWorldPath );
-				var loadedRuntimeWorld = Model.Load( runtimeWorldUri );
-				Log.Info( $"Gothic startup world path validation succeeded: EditorPath={editorWorldPath}; RuntimeUri={runtimeWorldUri}; LoadedEditor={(loadedEditorWorld is null ? "<null>" : loadedEditorWorld.Name)}; LoadedRuntime={(loadedRuntimeWorld is null ? "<null>" : loadedRuntimeWorld.Name)}" );
+				var runtimeWorldSceneUri = mount.GetMountedResourceUri( mount.GetMountedWorldSceneResourcePath( firstWorldPath ) );
+				var loadedRuntimeScene = SceneFile.Load( runtimeWorldSceneUri );
+				Log.Info( $"Gothic startup world scene validation succeeded: RuntimeSceneUri={runtimeWorldSceneUri}; LoadedRuntimeScene={(loadedRuntimeScene is null ? "<null>" : loadedRuntimeScene.ResourcePath)}" );
 			}
 			catch ( Exception exception )
 			{
-				Log.Warning( $"Gothic startup world path validation failed for '{firstWorldPath}': {exception}" );
+				Log.Warning( $"Gothic startup world scene validation failed for '{firstWorldPath}': {exception}" );
 			}
 		}
 
