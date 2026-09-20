@@ -8,6 +8,28 @@ namespace GothicClassicMount;
 
 public static class GothicClassicMountMenu
 {
+	[ConCmd( "gothic_import_world_objects" )]
+	[Menu( "Editor", "Gothic Classic Mount/Import World Object Prefabs" )]
+	public static void ImportWorldObjectPrefabs()
+	{
+		var mount = Directory.Get( "gothicclassic" ) as GothicClassicMount;
+		var scene = SceneEditorSession.Active?.Scene;
+		if ( mount is null || scene is null ) return;
+		using var scope = scene.Push();
+		foreach ( var renderer in scene.GetAllComponents<ModelRenderer>().ToArray() )
+		{
+			var source = mount.MountedWorldPaths.FirstOrDefault( path =>
+			{
+				var uri = mount.GetMountedResourceUri( mount.GetMountedWorldResourcePath( path ) );
+				return string.Equals( renderer.Model?.Name, uri, StringComparison.OrdinalIgnoreCase ) ||
+					string.Equals( renderer.Model?.Name, System.IO.Path.ChangeExtension( uri, ".scene_mesh.vmdl" ), StringComparison.OrdinalIgnoreCase );
+			} );
+			if ( source is null ) continue;
+			GothicWorldObjects.Populate( mount, source, renderer.GameObject );
+		}
+		RebuildWorldModels();
+	}
+
 	[ConCmd( "gothic_rebuild_worlds" )]
 	[Menu( "Editor", "Gothic Classic Mount/Rebuild World Models" )]
 	public static void RebuildWorldModels()
@@ -22,9 +44,13 @@ public static class GothicClassicMountMenu
 			var worldPath = mount.MountedWorldPaths.FirstOrDefault( path =>
 				string.Equals( modelName, mount.GetMountedResourceUri( mount.GetMountedWorldResourcePath( path ) ), StringComparison.OrdinalIgnoreCase ) ||
 				string.Equals( modelName, mount.GetMountedWorldResourcePath( path ), StringComparison.OrdinalIgnoreCase ) ||
-				string.Equals( modelName, mount.GetEditorWorldAssetPath( path ), StringComparison.OrdinalIgnoreCase ) );
+				string.Equals( modelName, mount.GetEditorWorldAssetPath( path ), StringComparison.OrdinalIgnoreCase ) ||
+				string.Equals( modelName, System.IO.Path.ChangeExtension( mount.GetMountedResourceUri( mount.GetMountedWorldResourcePath( path ) ), ".scene_mesh.vmdl" ), StringComparison.OrdinalIgnoreCase ) );
 			if ( worldPath is null ) continue;
-			renderer.Model = GothicGeometryBuilder.BuildWorldModel( mount, worldPath, mount.GetMountedResourceUri( mount.GetMountedWorldResourcePath( worldPath ) ) );
+			var hasObjectPrefabs = renderer.GameObject.Children.Any( child => child.Tags.Has( "gothic_world_objects" ) );
+			var modelPath = mount.GetMountedResourceUri( mount.GetMountedWorldResourcePath( worldPath ) );
+			if ( hasObjectPrefabs ) modelPath = System.IO.Path.ChangeExtension( modelPath, ".scene_mesh.vmdl" );
+			renderer.Model = GothicGeometryBuilder.BuildWorldModel( mount, worldPath, modelPath, includeTrees: !hasObjectPrefabs );
 			var collider = renderer.GameObject.Components.Get<ModelCollider>() ?? renderer.GameObject.Components.Create<ModelCollider>();
 			collider.Model = renderer.Model;
 			collider.Static = true;

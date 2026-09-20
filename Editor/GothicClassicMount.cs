@@ -111,6 +111,8 @@ public sealed class GothicClassicMount : BaseGameMount
 				_assetDescriptors[file.VirtualPath] = BuildAssetDescriptor( file.VirtualPath, false );
 				_mountedModelPaths.Add( file.VirtualPath );
 				context.Add( ResourceType.Model, ToInternalMountedModelPath( file.VirtualPath ), new GothicModelResource( file.VirtualPath ) );
+				if ( extension.Equals( ".MRM", StringComparison.OrdinalIgnoreCase ) || extension.Equals( ".MSH", StringComparison.OrdinalIgnoreCase ) )
+					context.Add( ResourceType.PrefabFile, GetMountedPrefabResourcePath( file.VirtualPath ), new GothicPrefabResource( file.VirtualPath ) );
 			}
 		}
 
@@ -118,6 +120,9 @@ public sealed class GothicClassicMount : BaseGameMount
 		IsMounted = true;
 		return Task.CompletedTask;
 	}
+
+	public string GetMountedPrefabResourcePath( string virtualPath ) =>
+		IOPath.Combine( InternalMountRoot, "prefabs", MountVersion, virtualPath + ".prefab" ).Replace( '\\', '/' ).ToLowerInvariant();
 
 	public Sandbox.Texture LoadTexture( string virtualPath, string resourcePath = null )
 	{

@@ -17,13 +17,14 @@ internal sealed class GothicWorldSceneResource : SceneLoader<GothicClassicMount>
 	{
 		try
 		{
-			var model = GothicGeometryBuilder.BuildWorldModel( Host, SourcePath, System.IO.Path.ChangeExtension( Path, ".vmdl" ) );
+			var model = GothicGeometryBuilder.BuildWorldModel( Host, SourcePath, System.IO.Path.ChangeExtension( Path, ".scene_mesh.vmdl" ), includeTrees: false );
 			var sceneRoot = new GameObject( System.IO.Path.GetFileNameWithoutExtension( SourcePath ) ?? "GothicWorld" );
 			var renderer = sceneRoot.Components.Create<ModelRenderer>();
 			renderer.Model = model;
 			var collider = sceneRoot.Components.Create<ModelCollider>();
 			collider.Model = model;
 			collider.Static = true;
+			GothicWorldObjects.Populate( Host, SourcePath, sceneRoot );
 		}
 		catch ( Exception exception )
 		{

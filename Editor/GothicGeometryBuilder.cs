@@ -10,7 +10,7 @@ internal static class GothicGeometryBuilder
 	private static readonly object WorldDiagnosticsLock = new();
 	private static readonly HashSet<string> LoggedWorldDiagnostics = new( StringComparer.OrdinalIgnoreCase );
 
-	public static Model BuildWorldModel( GothicClassicMount host, string virtualPath, string resourcePath )
+	public static Model BuildWorldModel( GothicClassicMount host, string virtualPath, string resourcePath, bool includeTrees = true )
 	{
 		var descriptor = host.GetDescriptor( virtualPath );
 		dynamic world = host.CreateWorld( virtualPath );
@@ -22,7 +22,7 @@ internal static class GothicGeometryBuilder
 		var polygonCount = ((IEnumerable)mesh.Polygons).Cast<object>().Count();
 		var worldPolygons = GetWorldLeafPolygons( world, polygonCount, virtualPath );
 		List<Sandbox.Mesh> renderMeshes = BuildRenderMeshesFromMesh( host, mesh, descriptor, worldPolygons );
-		AddWorldTrees( host, world, renderMeshes, virtualPath );
+		if ( includeTrees ) AddWorldTrees( host, world, renderMeshes, virtualPath );
 		if ( renderMeshes.Count == 0 )
 			throw new InvalidOperationException( $"Mesh '{resourcePath}' had no polygons." );
 		var builder = Model.Builder.WithName( resourcePath );
@@ -220,7 +220,39 @@ internal static class GothicGeometryBuilder
 
 		var builder = Model.Builder.WithName( name );
 		builder.AddMeshes( meshes.ToArray() );
+		AddModelCollision( builder, mesh );
 		return builder.Create();
+	}
+
+	private static void AddModelCollision( ModelBuilder builder, object mesh )
+	{
+		var vertices = new List<Vector3>();
+		var indices = new List<int>();
+		var vertexMap = new Dictionary<Vector3, int>();
+		foreach ( var subMesh in (IEnumerable)ZenKitRuntime.GetProperty( mesh, "SubMeshes" ) )
+		{
+			if ( ZenKitRuntime.GetProperty<bool>( ZenKitRuntime.GetProperty( subMesh, "Material" ), "DisableCollision" ) ) continue;
+			foreach ( var triangle in (IEnumerable)ZenKitRuntime.GetProperty( subMesh, "Triangles" ) )
+			{
+				var a = CreateTriangleVertex( mesh, subMesh, ZenKitRuntime.GetFieldValue<ushort>( triangle, "Wedge0" ) ).position;
+				var b = CreateTriangleVertex( mesh, subMesh, ZenKitRuntime.GetFieldValue<ushort>( triangle, "Wedge1" ) ).position;
+				var c = CreateTriangleVertex( mesh, subMesh, ZenKitRuntime.GetFieldValue<ushort>( triangle, "Wedge2" ) ).position;
+				if ( Vector3.Cross( b - a, c - a ).LengthSquared < 0.000001f ) continue;
+				indices.Add( Vertex( a ) );
+				indices.Add( Vertex( b ) );
+				indices.Add( Vertex( c ) );
+			}
+		}
+		if ( indices.Count > 0 ) builder.AddCollisionMesh( vertices, indices );
+
+		int Vertex( Vector3 position )
+		{
+			if ( vertexMap.TryGetValue( position, out var index ) ) return index;
+			index = vertices.Count;
+			vertexMap.Add( position, index );
+			vertices.Add( position );
+			return index;
+		}
 	}
 
 	private static Model BuildModelFromMesh( GothicClassicMount host, string name, dynamic mesh, GothicClassicMount.GothicAssetDescriptor descriptor, HashSet<int> worldPolygons = null )
@@ -231,6 +263,7 @@ internal static class GothicGeometryBuilder
 
 		var builder = Model.Builder.WithName( name );
 		builder.AddMeshes( meshes.ToArray() );
+		AddWorldCollision( builder, mesh, worldPolygons, name );
 		return builder.Create();
 	}
 
