@@ -17,7 +17,6 @@ internal static class GothicWorldObjects
 		{
 			RefreshCollision( host, worldPath, existing );
 			Log.Info( $"Gothic world objects already imported: Instances={existing.Children.Count()} LinkedPrefabs={existing.Children.Count( child => child.IsPrefabInstanceRoot )}" );
-			return;
 		}
 		var world = host.CreateWorld( worldPath );
 		if ( ZenKitRuntime.GetProperty( world, "RootObjects" ) is not IEnumerable roots ) return;
@@ -26,12 +25,19 @@ internal static class GothicWorldObjects
 			.GroupBy( p => Path.GetFileNameWithoutExtension( p ), StringComparer.OrdinalIgnoreCase )
 			.ToDictionary( g => g.Key, g => g.OrderBy( p => p.EndsWith( ".MRM", StringComparison.OrdinalIgnoreCase ) ? 0 : 1 ).First(), StringComparer.OrdinalIgnoreCase );
 		var prefabs = new Dictionary<string, PrefabFile>( StringComparer.OrdinalIgnoreCase );
+		var failedModels = new HashSet<string>( StringComparer.OrdinalIgnoreCase );
+		var existingVobs = existing?.Children.SelectMany( child => child.Tags )
+			.Where( tag => tag.StartsWith( "gothic_vob_", StringComparison.Ordinal ) ).ToHashSet() ?? new HashSet<string>();
 		var skipped = new Dictionary<string, int>( StringComparer.OrdinalIgnoreCase );
 		var imported = 0;
-		var container = new GameObject( "Gothic Objects" );
-		container.Parent = worldRoot;
-		container.LocalTransform = Transform.Zero;
-		container.Tags.Add( ImportTag );
+		var container = existing;
+		if ( container is null )
+		{
+			container = new GameObject( "Gothic Objects" );
+			container.Parent = worldRoot;
+			container.LocalTransform = Transform.Zero;
+			container.Tags.Add( ImportTag );
+		}
 		foreach ( var root in roots ) Visit( root );
 		Log.Info( $"Gothic world prefabs [{worldPath}]: Instances={imported} UniqueModels={prefabs.Count} SkippedVisuals={skipped.Values.Sum()}" );
 		foreach ( var item in skipped.OrderByDescending( p => p.Value ).Take( 12 ) )
@@ -39,13 +45,14 @@ internal static class GothicWorldObjects
 
 		void Visit( object vob )
 		{
+			var vobTag = $"gothic_vob_{ZenKitRuntime.GetProperty<int>( vob, "Id" )}";
 			var visual = ZenKitRuntime.GetProperty( vob, "Visual" );
 			var visualName = ZenKitRuntime.GetProperty<string>( visual, "Name" );
-			if ( ZenKitRuntime.GetProperty<bool>( vob, "ShowVisual" ) && !string.IsNullOrWhiteSpace( visualName ) )
+			if ( !existingVobs.Contains( vobTag ) && ZenKitRuntime.GetProperty<bool>( vob, "ShowVisual" ) && !string.IsNullOrWhiteSpace( visualName ) )
 			{
 				var extension = Path.GetExtension( visualName );
 				if ( (extension.Equals( ".3DS", StringComparison.OrdinalIgnoreCase ) || extension.Equals( ".MRM", StringComparison.OrdinalIgnoreCase ) || extension.Equals( ".MSH", StringComparison.OrdinalIgnoreCase )) &&
-					models.TryGetValue( Path.GetFileNameWithoutExtension( visualName ), out var modelPath ) )
+					models.TryGetValue( Path.GetFileNameWithoutExtension( visualName ), out var modelPath ) && !failedModels.Contains( modelPath ) )
 				{
 					try
 					{
@@ -60,12 +67,14 @@ internal static class GothicWorldObjects
 						if ( string.IsNullOrWhiteSpace( name ) ) name = Path.GetFileNameWithoutExtension( visualName );
 						var instance = GameObject.Clone( prefab, new Transform(), container, true, name );
 						instance.LocalTransform = transform;
-						instance.Tags.Add( $"gothic_vob_{ZenKitRuntime.GetProperty<int>( vob, "Id" )}" );
+						instance.Tags.Add( vobTag );
 						SetCollision( instance, ZenKitRuntime.GetProperty<bool>( vob, "CdDynamic" ) );
 						imported++;
+						existingVobs.Add( vobTag );
 					}
 					catch ( Exception exception )
 					{
+						failedModels.Add( modelPath );
 						Log.Warning( $"Gothic world prefab '{visualName}' failed: {exception.Message}" );
 						Skip( visualName );
 					}

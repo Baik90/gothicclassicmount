@@ -718,7 +718,8 @@ internal static class GothicGeometryBuilder
 
 	private static void SmoothNormals( List<GothicVertex> vertices, List<int> indices )
 	{
-		var accum = new Dictionary<(Vector3 Position, Vector2 Texcoord), Vector3>();
+		var accum = new Dictionary<(Vector3 Position, Vector2 Texcoord), List<Vector3>>();
+		var faceNormals = new Vector3[vertices.Count];
 
 		for ( var i = 0; i + 2 < indices.Count; i += 3 )
 		{
@@ -730,6 +731,7 @@ internal static class GothicGeometryBuilder
 			var v1 = vertices[i1];
 			var v2 = vertices[i2];
 			var faceNormal = Vector3.Cross( v1.position - v0.position, v2.position - v0.position ).Normal;
+			faceNormals[i0] = faceNormals[i1] = faceNormals[i2] = faceNormal;
 
 			Accumulate( v0, faceNormal );
 			Accumulate( v1, faceNormal );
@@ -739,17 +741,26 @@ internal static class GothicGeometryBuilder
 		for ( var i = 0; i < vertices.Count; i++ )
 		{
 			var vertex = vertices[i];
-			if ( accum.TryGetValue( MakeNormalKey( vertex ), out var normal ) && normal.Length > 0.0001f )
+			var reference = faceNormals[i];
+			var normal = Vector3.Zero;
+			if ( accum.TryGetValue( MakeNormalKey( vertex ), out var neighbours ) )
 			{
-				vertex.normal = normal.Normal;
-				vertices[i] = vertex;
+				// Gothic contains coincident front/back triangles (foliage and water).
+				// Opposing faces must not cancel each other's lighting normals.
+				foreach ( var neighbour in neighbours )
+					if ( Vector3.Dot( reference, neighbour ) > 0.0f ) normal += neighbour;
 			}
+			vertex.normal = normal.Length > 0.0001f ? normal.Normal
+				: reference.Length > 0.0001f ? reference : Vector3.Up;
+			vertices[i] = vertex;
 		}
 
 		void Accumulate( GothicVertex vertex, Vector3 normal )
 		{
 			var key = MakeNormalKey( vertex );
-			accum[key] = accum.TryGetValue( key, out var current ) ? current + normal : normal;
+			if ( !accum.TryGetValue( key, out var current ) )
+				accum[key] = current = new List<Vector3>();
+			current.Add( normal );
 		}
 	}
 

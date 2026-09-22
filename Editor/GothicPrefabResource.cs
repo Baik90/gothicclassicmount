@@ -19,19 +19,19 @@ internal sealed class GothicPrefabResource( string sourcePath ) : ResourceLoader
 			// Stable source IDs keep saved instance overrides valid after remounting.
 			root.Deserialize( new JsonObject
 			{
-				["__guid"] = StableId( "root" ).ToString(),
+				["__guid"] = JsonValue.Create( StableId( "root" ) ),
 				["Name"] = System.IO.Path.GetFileNameWithoutExtension( sourcePath ),
 				["Enabled"] = true,
 				["Components"] = new JsonArray( new JsonObject
 				{
 					["__type"] = "Sandbox.ModelRenderer",
-					["__guid"] = StableId( "renderer" ).ToString(),
+					["__guid"] = JsonValue.Create( StableId( "renderer" ) ),
 					["__enabled"] = true,
 					["Model"] = Host.GetMountedResourceUri( Host.GetMountedModelResourcePath( sourcePath ) )
 				}, new JsonObject
 				{
 					["__type"] = "Sandbox.ModelCollider",
-					["__guid"] = StableId( "collider" ).ToString(),
+					["__guid"] = JsonValue.Create( StableId( "collider" ) ),
 					["__enabled"] = true,
 					["Static"] = true,
 					["Model"] = Host.GetMountedResourceUri( Host.GetMountedModelResourcePath( sourcePath ) )

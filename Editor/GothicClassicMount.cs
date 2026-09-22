@@ -183,7 +183,7 @@ public sealed class GothicClassicMount : BaseGameMount
 			DebugSource = "null_descriptor"
 		};
 
-		var cacheKey = "alpha_v1_" + materialInfo.CacheKey;
+		var cacheKey = "alpha_cutout_v2_" + materialInfo.CacheKey;
 		lock ( _cacheLock )
 		{
 			if ( _materialCache.TryGetValue( cacheKey, out var cachedMaterial ) )
@@ -198,6 +198,7 @@ public sealed class GothicClassicMount : BaseGameMount
 		}
 
 		var material = SMaterial.Create( safeMaterialName, "gothic_surface" );
+		material.SetFeature( "F_ALPHA_TEST", 1 );
 		material.Attributes?.SetCombo( "D_RENDER_BACKFACES", true );
 		material.Set( "Color", materialInfo.TexturePath is null ? Sandbox.Texture.White : LoadTexture( materialInfo.TexturePath ) );
 
