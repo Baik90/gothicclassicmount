@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "6b74f7f9-a1b1-5d02-0199-567944250cb0",
+    "__version": 2,
+    "Name": "Badenixe (BATHBABE)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "b0059b19-7b15-e110-4568-87961379d8e0",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/bathbabe_badenixe.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "f10db824-b18d-34a8-b006-c1fe4b042a58",
+    "__version": 2,
+    "Name": "Sch\u00FCrfer (SFB_1030_SCHUERFER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "68ce9b12-3ca2-78d0-cb41-24e280e5c748",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/sfb_1030_schuerfer_sch\u00FCrfer.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

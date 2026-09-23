@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "30dc4ed9-d530-f7c5-448e-e664e4401913",
+    "__version": 2,
+    "Name": "Rausschmeisser (ORG_875_TUERSTEHER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "affa78ae-3da9-51aa-bd59-08549396d135",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/org_875_tuersteher_rausschmeisser.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

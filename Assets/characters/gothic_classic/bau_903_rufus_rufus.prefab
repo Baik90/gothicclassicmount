@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "1580e524-5c4e-01c5-2d05-e2c228b66ec2",
+    "__version": 2,
+    "Name": "Rufus (BAU_903_RUFUS)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "0faaf3d3-c805-dbc5-22cd-ce6d8c700695",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/bau_903_rufus_rufus.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

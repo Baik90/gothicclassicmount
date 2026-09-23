@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "a447b6f5-2a52-7c08-c91f-9d43b0d62e4f",
+    "__version": 2,
+    "Name": "Gardist (GRD_281_GARDIST)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "5465dfde-b4f3-272f-648f-bf79e8267a04",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/grd_281_gardist_gardist.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "f8031da7-6020-72b9-163a-ac51bdcffd0b",
+    "__version": 2,
+    "Name": "Bessessener Novize (NOV_1370_NOVIZE)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "920bacb7-8208-15a6-7a22-b59e8f4280b4",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/nov_1370_novize_bessessener_novize.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

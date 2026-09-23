@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "a5107c33-5168-179d-8c7c-ab9eb6bb84b2",
+    "__version": 2,
+    "Name": "Wegelagerer (NON_1503_WEGELAGERER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "39b6be9d-6a45-92ff-9a12-8cd508612e36",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/non_1503_wegelagerer_wegelagerer.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

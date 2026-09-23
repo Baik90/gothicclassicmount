@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "d219b5d7-7266-1984-8904-69a63a5d4840",
+    "__version": 2,
+    "Name": "Gor Boba (TPL_1455_GORBOBA)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "26fc866c-5e05-f250-3feb-6180fe3a1f70",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/tpl_1455_gorboba_gor_boba.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

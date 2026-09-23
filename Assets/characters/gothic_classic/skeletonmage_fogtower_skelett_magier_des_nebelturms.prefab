@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "850fb605-b3a7-3481-7eec-85a67e843916",
+    "__version": 2,
+    "Name": "Skelett Magier des Nebelturms (SKELETONMAGE_FOGTOWER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "71f85d61-93fc-2059-c3e9-0154bdb34291",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/skeletonmage_fogtower_skelett_magier_des_nebelturms.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

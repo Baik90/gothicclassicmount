@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "a474d7c1-e238-ead4-c2b9-05d9203d3713",
+    "__version": 2,
+    "Name": "Apokalyptischer Templer (TPL_1450_TEMPLER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "aa5d268f-faf9-89e4-f64c-c2857842be5c",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/tpl_1450_templer_apokalyptischer_templer.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

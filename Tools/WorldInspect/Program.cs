@@ -1,6 +1,33 @@
 using System.Reflection;
 using ZenKit;
 
+if ( args.Contains("--characters") || args.Contains("--animations") )
+{
+	var option=Array.IndexOf(args,"--install");
+	var install=option>=0 && option+1<args.Length ? args[option+1] : @"D:\Steam\steamapps\common\Gothic";
+	if(args.Contains("--characters")) Characters.Inspect(install); else AnimationInspect.Inspect(install);
+	return;
+}
+if ( args.Contains("--animation-api") )
+{
+	foreach(var t in typeof(Vfs).Assembly.GetTypes().Where(t=>t.IsPublic && (t.Name.Contains("Animation") || t.Name.Contains("Sample"))))
+	{
+		Console.WriteLine(t.FullName);
+		foreach(var m in t.GetMembers(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly)) Console.WriteLine("  "+m);
+	}
+	return;
+}
+
+if ( args.Contains( "--api" ) )
+{
+	foreach ( var t in typeof(Vfs).Assembly.GetTypes().Where( t => t.IsPublic && (t.Name.Contains("Daedalus") || t.Name.Contains("NpcInstance") || t.Name.Contains("ItemInstance") || t.Name.Contains("ModelHierarchy") || t.Name.Contains("SoftSkin") || t.Name.Contains("ModelNode") || t.Name.Contains("MorphMesh") || t.Name.Contains("ModelScript")) ) )
+	{
+		Console.WriteLine(t.FullName);
+		foreach(var m in t.GetMembers(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly)) Console.WriteLine("  " + m);
+	}
+	return;
+}
+
 var dataPath = args.Length > 0 ? args[0] : @"D:\Steam\steamapps\common\Gothic\Data";
 var worldPath = args.Length > 1 ? args[1] : "_WORK/DATA/WORLDS/WORLD.ZEN";
 
@@ -458,3 +485,4 @@ static string ReadStringMember( object instance, string memberName )
 {
 	return ReadObjectMember( instance, memberName ) as string;
 }
+

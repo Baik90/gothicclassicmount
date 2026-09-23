@@ -716,7 +716,7 @@ internal static class GothicGeometryBuilder
 		};
 	}
 
-	private static void SmoothNormals( List<GothicVertex> vertices, List<int> indices )
+	internal static void SmoothNormals( List<GothicVertex> vertices, List<int> indices )
 	{
 		var accum = new Dictionary<(Vector3 Position, Vector2 Texcoord), List<Vector3>>();
 		var faceNormals = new Vector3[vertices.Count];

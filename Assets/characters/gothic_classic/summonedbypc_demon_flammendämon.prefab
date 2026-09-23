@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "c81e97f7-3104-69a0-1942-13311e5a1bf0",
+    "__version": 2,
+    "Name": "Flammend\u00E4mon (SUMMONEDBYPC_DEMON)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "459cea3a-cc70-bb37-1155-237397afbbd1",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/summonedbypc_demon_flammend\u00E4mon.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

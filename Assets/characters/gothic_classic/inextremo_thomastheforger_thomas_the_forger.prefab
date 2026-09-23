@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "0a307025-8984-8dd5-aea4-906e9d23747c",
+    "__version": 2,
+    "Name": "Thomas the forger (INEXTREMO_THOMASTHEFORGER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "fb938e59-5e72-7ee3-2a75-df9a27ed1c77",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/inextremo_thomastheforger_thomas_the_forger.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

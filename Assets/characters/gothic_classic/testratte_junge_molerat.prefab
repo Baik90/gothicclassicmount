@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "169425fa-55a9-3e5c-0f81-f0a117c8308d",
+    "__version": 2,
+    "Name": "junge Molerat (TESTRATTE)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "0.9,0.9,0.9",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "8c79f2c3-1d88-0bbb-1d29-faa08aaf9d70",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/testratte_junge_molerat.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

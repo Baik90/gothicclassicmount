@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "a3dd0789-1d27-7486-1e74-f3d0cc6ef92a",
+    "__version": 2,
+    "Name": "Cavalorn (STT_336_CAVALORN)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "f77ab226-8d10-2580-b150-81b38cacb269",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/stt_336_cavalorn_cavalorn.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

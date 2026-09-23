@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "a3d321b3-4be5-fcbc-4559-66f6e86a0848",
+    "__version": 2,
+    "Name": "Fanatischer Templer (TPL_1457_TEMPLER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "d8bce353-3521-b075-af91-745cc4b3a45d",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/tpl_1457_templer_fanatischer_templer.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "0cc5eccb-f34c-ce91-ee46-b7fd320b9a13",
+    "__version": 2,
+    "Name": "Tempelw\u00E4chter (UNDEADORCWARRIOR)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "5628b877-da89-4fc5-df30-f7e1c6d199e4",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/undeadorcwarrior_tempelw\u00E4chter.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

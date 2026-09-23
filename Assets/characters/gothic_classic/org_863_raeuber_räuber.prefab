@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "fa68eb4a-9c79-0829-bfe2-c5a999e7774c",
+    "__version": 2,
+    "Name": "R\u00E4uber (ORG_863_RAEUBER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "f7a2b839-a11b-2a72-5494-abdb45503d2a",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/org_863_raeuber_r\u00E4uber.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

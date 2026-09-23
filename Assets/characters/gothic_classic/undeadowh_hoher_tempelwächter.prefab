@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "40480984-bf0b-88a9-94a9-acb145867ff7",
+    "__version": 2,
+    "Name": "Hoher Tempelw\u00E4chter (UNDEADOWH)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "9f1780df-5e5b-7112-36cf-e6b035865f51",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/undeadowh_hoher_tempelw\u00E4chter.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

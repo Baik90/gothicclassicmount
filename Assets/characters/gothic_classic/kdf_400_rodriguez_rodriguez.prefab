@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "f90d6eb3-858f-f5e7-4fca-00dbe3bf7708",
+    "__version": 2,
+    "Name": "Rodriguez (KDF_400_RODRIGUEZ)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "ec8001c8-4919-cfd2-470a-e0b941d07a89",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/kdf_400_rodriguez_rodriguez.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

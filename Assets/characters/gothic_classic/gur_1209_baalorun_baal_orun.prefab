@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "dd837cd0-064d-f2b7-78aa-166470fc9f22",
+    "__version": 2,
+    "Name": "Baal Orun (GUR_1209_BAALORUN)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "2674711e-b9e2-0de6-8e3d-78578d04b851",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/gur_1209_baalorun_baal_orun.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

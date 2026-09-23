@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "6bc41dad-846c-807d-0149-f005b5c2d3b8",
+    "__version": 2,
+    "Name": "Baal Netbek (NOV_1371_BAALNETBEK)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "b623f798-7b7e-e9a7-60b9-db284ed56966",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/nov_1371_baalnetbek_baal_netbek.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

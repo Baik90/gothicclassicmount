@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "3b1df79a-87f0-1b74-7330-19c50917deeb",
+    "__version": 2,
+    "Name": "Schl\u00E4ger (ORG_846_SCHLAEGER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "d07ce3c5-3fc6-b7a1-bca3-ec1c7f3ef740",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/org_846_schlaeger_schl\u00E4ger.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

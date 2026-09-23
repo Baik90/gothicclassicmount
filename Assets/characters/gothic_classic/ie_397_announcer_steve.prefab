@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "55bbf22e-0fc7-07b6-c2ab-29fbf1ee6250",
+    "__version": 2,
+    "Name": "Steve (IE_397_ANNOUNCER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "f8d19d9b-19dd-cc5e-e06f-a4e97c1bfb5f",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/ie_397_announcer_steve.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

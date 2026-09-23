@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "780adaae-f631-7aa5-d8c3-306f2201f03a",
+    "__version": 2,
+    "Name": "junge Molerat (YMOLERAT)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "0.9,0.9,0.9",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "3be8ab3a-5bd5-3ded-2d82-6935cac734cb",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/ymolerat_junge_molerat.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

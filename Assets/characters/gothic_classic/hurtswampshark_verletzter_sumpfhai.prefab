@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "64b31cd9-ae22-9d19-9e55-024443b9c3de",
+    "__version": 2,
+    "Name": "verletzter Sumpfhai (HURTSWAMPSHARK)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "fc41156b-6188-2afc-81dd-8082f6c36ca1",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/hurtswampshark_verletzter_sumpfhai.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

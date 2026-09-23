@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "85ea4d1b-c1b0-e9c2-8ed0-6e959af991f2",
+    "__version": 2,
+    "Name": "Rockefeller (PC_ROCKEFELLER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "5d0a5830-1ac1-ada5-2941-af6167c34f5f",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/pc_rockefeller_rockefeller.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "6d65c4ef-b330-5091-b717-86473d9d1833",
+    "__version": 2,
+    "Name": "Perception_Testmodell (PERCEPTION_TESTMODELL)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "0.9,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "4caf1c66-35c6-d625-f2d8-68e1c49d01c2",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/perception_testmodell_perception_testmodell.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "a76933a5-e89e-0b40-bcea-42fbb242fa05",
+    "__version": 2,
+    "Name": "Ork Sklave (ORC_2002_SKLAVE)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "098b26df-bc32-4012-7a2d-c77ae52760b8",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/orc_2002_sklave_ork_sklave.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

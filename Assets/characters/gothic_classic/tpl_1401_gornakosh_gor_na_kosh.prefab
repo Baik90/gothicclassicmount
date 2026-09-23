@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "0b7acf82-db22-0f23-123b-4747badcba85",
+    "__version": 2,
+    "Name": "Gor Na Kosh (TPL_1401_GORNAKOSH)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "fabe7d38-dd3e-498b-a35d-532dc568fc9b",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/tpl_1401_gornakosh_gor_na_kosh.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

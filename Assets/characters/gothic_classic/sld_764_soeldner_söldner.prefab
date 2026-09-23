@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "3491efaa-6c41-a54f-f070-75364b7147dc",
+    "__version": 2,
+    "Name": "S\u00F6ldner (SLD_764_SOELDNER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "eb2ffd4e-5af8-501c-565f-3a8536b7a158",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/sld_764_soeldner_s\u00F6ldner.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

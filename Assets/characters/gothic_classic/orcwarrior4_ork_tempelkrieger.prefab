@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "668e5589-8355-1c53-5866-ef37a2972a70",
+    "__version": 2,
+    "Name": "Ork Tempelkrieger (ORCWARRIOR4)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "9372343e-4fd6-a9ae-399e-3f54b6015510",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/orcwarrior4_ork_tempelkrieger.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

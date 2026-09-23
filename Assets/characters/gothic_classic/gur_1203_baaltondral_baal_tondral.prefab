@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "2c194d05-e4cd-fcd6-0725-a4d7274b4d8d",
+    "__version": 2,
+    "Name": "Baal Tondral (GUR_1203_BAALTONDRAL)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "3463ec87-2129-4d58-b493-6b8ebe273bae",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/gur_1203_baaltondral_baal_tondral.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "0c2ffaf3-7524-427c-a1ab-4546ffd15d35",
+    "__version": 2,
+    "Name": "babe rockefeller (BABE_ROCKEFELLER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "e7e43ce4-eaf3-94e5-34b0-224edfb82076",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/babe_rockefeller_babe_rockefeller.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

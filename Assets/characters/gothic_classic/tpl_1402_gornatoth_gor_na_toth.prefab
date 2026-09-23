@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "b6180532-0b61-4d35-70d3-ac76c0c33b02",
+    "__version": 2,
+    "Name": "Gor Na Toth (TPL_1402_GORNATOTH)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "6113a8cf-3e1f-f0f9-5286-9e9d2d9c754f",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/tpl_1402_gornatoth_gor_na_toth.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

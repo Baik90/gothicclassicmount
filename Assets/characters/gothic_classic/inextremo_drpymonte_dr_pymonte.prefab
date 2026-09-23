@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "e4c60c18-4a52-b031-44df-bf1c6a019fed",
+    "__version": 2,
+    "Name": "Dr. Pymonte (INEXTREMO_DRPYMONTE)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "6aa53780-6bda-9169-b155-90ca41aa22bd",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/inextremo_drpymonte_dr_pymonte.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

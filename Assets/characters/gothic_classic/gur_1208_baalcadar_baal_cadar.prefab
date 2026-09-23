@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "86041599-deb3-5aa1-8b48-5340edada391",
+    "__version": 2,
+    "Name": "Baal Cadar (GUR_1208_BAALCADAR)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "74dbdedd-7b39-88ad-4473-ac1ba8f30ad2",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/gur_1208_baalcadar_baal_cadar.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

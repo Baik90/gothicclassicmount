@@ -12,7 +12,7 @@ using STexture = Sandbox.Texture;
 
 namespace GothicClassicMount;
 
-public sealed class GothicClassicMount : BaseGameMount
+public sealed partial class GothicClassicMount : BaseGameMount
 {
 	public new const long SteamAppId = 65540;
 	private const string MountVersion = "gothic_classic";
@@ -79,6 +79,7 @@ public sealed class GothicClassicMount : BaseGameMount
 		_mountedModelPaths.Clear();
 		_mountedWorldPaths.Clear();
 		ProcessedWorldFileSystem = null;
+		ResetCharacters();
 
 		VirtualFileSystem = BuildVirtualFileSystem();
 
@@ -116,6 +117,7 @@ public sealed class GothicClassicMount : BaseGameMount
 			}
 		}
 
+		RegisterCharacters( context );
 		Log.Info( $"Mounted Gothic Classic from '{InstallDirectory}' with {allFiles.Length} files." );
 		IsMounted = true;
 		return Task.CompletedTask;

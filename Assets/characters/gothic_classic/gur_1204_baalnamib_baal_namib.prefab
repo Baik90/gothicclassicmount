@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "02ebe3cc-fa0f-22c9-b0f8-9beb2f4e9a0f",
+    "__version": 2,
+    "Name": "Baal Namib (GUR_1204_BAALNAMIB)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "90b779f2-c1ad-2047-186d-f61c0be73a2c",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/gur_1204_baalnamib_baal_namib.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

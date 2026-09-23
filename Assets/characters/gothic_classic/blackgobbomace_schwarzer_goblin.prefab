@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "a03ae825-ef3c-0c2c-7687-815f2d9d8502",
+    "__version": 2,
+    "Name": "schwarzer Goblin (BLACKGOBBOMACE)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "38762d96-3e09-032a-56af-0a3d171d15f9",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/blackgobbomace_schwarzer_goblin.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

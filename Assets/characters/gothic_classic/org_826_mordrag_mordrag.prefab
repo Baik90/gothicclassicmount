@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "410cbb14-cf5e-a935-5c4d-e1edfd2fef73",
+    "__version": 2,
+    "Name": "Mordrag (ORG_826_MORDRAG)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "a876c5ce-5bdf-8d6d-18ca-8a5148c6aec7",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/org_826_mordrag_mordrag.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

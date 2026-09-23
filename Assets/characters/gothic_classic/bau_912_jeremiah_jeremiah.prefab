@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "c1f5c3ee-4346-1be9-0ca9-2aeba8873420",
+    "__version": 2,
+    "Name": "Jeremiah (BAU_912_JEREMIAH)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "4552ae3e-65e0-5bd7-3ef4-f6c99f448969",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/bau_912_jeremiah_jeremiah.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

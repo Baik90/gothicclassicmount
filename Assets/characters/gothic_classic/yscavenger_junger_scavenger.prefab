@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "53506d61-8012-6e73-b7d2-fa6b567c0b72",
+    "__version": 2,
+    "Name": "junger Scavenger (YSCAVENGER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "0.9,0.9,0.9",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "9cc5115d-82d3-6ac7-2818-9529afc02cd0",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/yscavenger_junger_scavenger.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "85c41974-2c31-2e3e-c851-c51b161a1771",
+    "__version": 2,
+    "Name": "Baal Parvez (NOV_1330_BAALPARVEZ)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "6b4c62bc-e9e3-0fa0-402f-0d1568cd8d63",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/nov_1330_baalparvez_baal_parvez.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

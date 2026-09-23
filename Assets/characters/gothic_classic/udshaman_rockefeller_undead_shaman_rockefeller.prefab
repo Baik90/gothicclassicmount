@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "faf0493e-33ee-768d-4e7e-76c6065309e3",
+    "__version": 2,
+    "Name": "Undead Shaman Rockefeller (UDSHAMAN_ROCKEFELLER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "23d17679-0ed3-7165-efa8-a8944b0694c5",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/udshaman_rockefeller_undead_shaman_rockefeller.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

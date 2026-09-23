@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "f1f5098c-1882-e4d9-c11a-aa90783e99a9",
+    "__version": 2,
+    "Name": "Schattenl\u00E4ufer (SHADOWBEAST)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "870c5fb1-9db9-a7cb-f905-c8ff1083658d",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/shadowbeast_schattenl\u00E4ufer.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

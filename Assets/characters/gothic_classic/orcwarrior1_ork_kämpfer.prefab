@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "c492f698-1437-f4d2-945f-d4a074b737db",
+    "__version": 2,
+    "Name": "Ork K\u00E4mpfer (ORCWARRIOR1)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "a18d2e77-ba84-f915-bd0b-95d08e4b66dd",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/orcwarrior1_ork_k\u00E4mpfer.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

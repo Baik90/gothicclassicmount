@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "20b308b5-bb95-e512-fb55-0cdc0b1a4e1d",
+    "__version": 2,
+    "Name": "Unicorn (INEXTREMO_UNICORN)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "f0c7e732-c6c9-56ac-d7d2-87f8f15e7738",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/inextremo_unicorn_unicorn.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "2cac55f9-af76-2772-4701-2ed96187dfd9",
+    "__version": 2,
+    "Name": "Kalom\u0027s Leibwache (TPL_1406_TEMPLER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "5d3c4dfd-2352-0bf9-8d9f-b9bb5a44fb1e",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/tpl_1406_templer_kalom_s_leibwache.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

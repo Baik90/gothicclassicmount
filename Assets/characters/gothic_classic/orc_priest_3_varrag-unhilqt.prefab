@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "756397a9-e172-c100-c9f3-ebbbf440d8f4",
+    "__version": 2,
+    "Name": "Varrag-Unhilqt (ORC_PRIEST_3)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "0.9,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "d8df9d2e-074b-deb9-b787-29b3c2429c0d",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/orc_priest_3_varrag-unhilqt.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "06905290-859f-4046-0987-e1a274d5417c",
+    "__version": 2,
+    "Name": "Br\u00FCckenwache (GRD_276_BRUECKENWACHE)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "f8c1d191-b936-fd7f-bf3b-ec72bc99ab8f",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/grd_276_brueckenwache_br\u00FCckenwache.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

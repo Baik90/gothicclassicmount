@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "9c11401d-18b7-eb4f-302f-2b6f9952b96e",
+    "__version": 2,
+    "Name": "Baal Kagan (NOV_1332_BAALKAGAN)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "7ddb5766-db8d-2b94-b515-ba09eaa91bc5",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/nov_1332_baalkagan_baal_kagan.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "d9416e87-6233-8fd4-f8ff-7a4b212accee",
+    "__version": 2,
+    "Name": "Shaman Rockefeller (SHAMAN_ROCKEFELLER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "a5b522e2-373c-59f8-1dd0-5e610a2bcb2d",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/shaman_rockefeller_shaman_rockefeller.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

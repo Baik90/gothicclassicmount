@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "61b5d4c2-3ca8-e2fe-46a8-1a5b41c40089",
+    "__version": 2,
+    "Name": "D\u00E4monenlord (DEMONLORD)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "ad1eaac4-0631-1e57-2e74-5a82c4ba3132",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/demonlord_d\u00E4monenlord.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

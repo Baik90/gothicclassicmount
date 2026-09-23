@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "cef36966-57a7-cd60-b9e0-219fcb7b242b",
+    "__version": 2,
+    "Name": "Ork Klankrieger (ORCWARRIOR3)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "c5d4db8b-c82c-6d29-ae5a-b9987b66a892",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/orcwarrior3_ork_klankrieger.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

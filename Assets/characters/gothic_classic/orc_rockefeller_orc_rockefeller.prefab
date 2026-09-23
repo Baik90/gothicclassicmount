@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "f5bf80ab-8a2e-dd5a-f9a1-f4bfedbc5cc2",
+    "__version": 2,
+    "Name": "Orc Rockefeller (ORC_ROCKEFELLER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "64e6d7ed-f840-ab19-fd15-fef78ce4eb27",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/orc_rockefeller_orc_rockefeller.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

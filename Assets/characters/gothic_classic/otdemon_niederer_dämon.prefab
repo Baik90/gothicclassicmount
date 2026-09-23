@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "7f0f709e-6fe8-ed9b-2769-0a3885146d16",
+    "__version": 2,
+    "Name": "niederer D\u00E4mon (OTDEMON)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "f2d771c2-5466-cb1b-5c3c-c65e2c9a4094",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/otdemon_niederer_d\u00E4mon.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

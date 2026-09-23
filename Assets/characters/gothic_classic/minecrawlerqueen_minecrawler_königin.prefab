@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "a47fc843-1fca-c67f-5a38-000ca4325a3e",
+    "__version": 2,
+    "Name": "Minecrawler K\u00F6nigin (MINECRAWLERQUEEN)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "6d144e71-b41f-39ae-eb75-6e582af9fafc",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/minecrawlerqueen_minecrawler_k\u00F6nigin.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

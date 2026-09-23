@@ -1,0 +1,222 @@
+{
+  "__guid": "c9d93380-751a-41ce-b9e2-fac5ab84e81a",
+  "GameObjects": [
+    {
+      "__guid": "0664e93e-63e1-4e23-a32c-3cbf55f9b9b4",
+      "__version": 2,
+      "__Prefab": {
+        "Id": "c94943c3-66bf-4106-b93d-0fa652133337",
+        "Path": "characters/gothic_classic/pc_hero_ich.prefab"
+      },
+      "__PrefabInstancePatch": {
+        "AddedObjects": [],
+        "RemovedObjects": [],
+        "PropertyOverrides": [
+          {
+            "Target": {
+              "Type": "GameObject",
+              "IdValue": "09e8dc84-23e6-c5b4-59c0-c06b166f52d0"
+            },
+            "Property": "Position",
+            "Value": "-100,0,0"
+          },
+          {
+            "Target": {
+              "Type": "Component",
+              "IdValue": "a4e63761-5a3d-cb56-a520-344d452008c0"
+            },
+            "Property": "Sequence",
+            "Value": {
+              "Name": "S_RUNL",
+              "Looping": true,
+              "Blending": false
+            }
+          }
+        ],
+        "MovedObjects": []
+      },
+      "__PrefabIdToInstanceId": {
+        "09e8dc84-23e6-c5b4-59c0-c06b166f52d0": "0664e93e-63e1-4e23-a32c-3cbf55f9b9b4",
+        "a4e63761-5a3d-cb56-a520-344d452008c0": "c7c2fc96-ad60-4087-804c-6db69d01415b"
+      }
+    },
+    {
+      "__guid": "7ce9077b-c6c3-4189-8af5-a857b66e96cf",
+      "__version": 2,
+      "__Prefab": {
+        "Id": "754bfece-5334-41e5-bc2d-ded3c65226b1",
+        "Path": "characters/gothic_classic/pc_thief_diego.prefab"
+      },
+      "__PrefabInstancePatch": {
+        "AddedObjects": [],
+        "RemovedObjects": [],
+        "PropertyOverrides": [
+          {
+            "Target": {
+              "Type": "GameObject",
+              "IdValue": "133eba22-51d7-1954-2713-dd78c17a0c48"
+            },
+            "Property": "Position",
+            "Value": "-40,0,0"
+          }
+        ],
+        "MovedObjects": []
+      },
+      "__PrefabIdToInstanceId": {
+        "133eba22-51d7-1954-2713-dd78c17a0c48": "7ce9077b-c6c3-4189-8af5-a857b66e96cf",
+        "824c8c14-be32-8349-a437-fa60f76abfdf": "6cca380d-674f-4f60-abbc-04cc47a10411"
+      }
+    },
+    {
+      "__guid": "615941e8-dca5-4b13-9e6c-ecd26e145631",
+      "__version": 2,
+      "__Prefab": {
+        "Id": "f34265a8-9014-489c-b62d-33553190e042",
+        "Path": "characters/gothic_classic/kdf_404_xardas_xardas.prefab"
+      },
+      "__PrefabInstancePatch": {
+        "AddedObjects": [],
+        "RemovedObjects": [],
+        "PropertyOverrides": [
+          {
+            "Target": {
+              "Type": "GameObject",
+              "IdValue": "3ed97279-85a2-d642-2bd5-c80fa78515af"
+            },
+            "Property": "Position",
+            "Value": "20,0,0"
+          }
+        ],
+        "MovedObjects": []
+      },
+      "__PrefabIdToInstanceId": {
+        "3ed97279-85a2-d642-2bd5-c80fa78515af": "615941e8-dca5-4b13-9e6c-ecd26e145631",
+        "1ec14be1-33ff-0e66-656c-545824df03e7": "4d66c0f0-21be-4a50-b487-3d8e13a9bd91"
+      }
+    },
+    {
+      "__guid": "df9abadc-5235-453b-9ab3-6fc0b9329ed8",
+      "__version": 2,
+      "__Prefab": {
+        "Id": "d89fe4de-5f28-4c0f-9164-5168af6446fa",
+        "Path": "characters/gothic_classic/scavenger_scavenger.prefab"
+      },
+      "__PrefabInstancePatch": {
+        "AddedObjects": [],
+        "RemovedObjects": [],
+        "PropertyOverrides": [
+          {
+            "Target": {
+              "Type": "GameObject",
+              "IdValue": "41742921-79a4-c061-5a57-ac5ac775e296"
+            },
+            "Property": "Position",
+            "Value": "100,0,0"
+          },
+          {
+            "Target": {
+              "Type": "Component",
+              "IdValue": "df139164-ed7b-af57-9453-86a16f696d3c"
+            },
+            "Property": "Sequence",
+            "Value": {
+              "Name": "S_FISTRUNL",
+              "Looping": true,
+              "Blending": false
+            }
+          }
+        ],
+        "MovedObjects": []
+      },
+      "__PrefabIdToInstanceId": {
+        "41742921-79a4-c061-5a57-ac5ac775e296": "df9abadc-5235-453b-9ab3-6fc0b9329ed8",
+        "df139164-ed7b-af57-9453-86a16f696d3c": "0495413d-2428-47de-a006-0221711b85a8"
+      }
+    },
+    {
+      "__guid": "7a258fda-f0d3-42f5-b6ca-396406ab1005",
+      "__version": 2,
+      "Flags": 0,
+      "Name": "Preview Floor",
+      "Position": "0,0,-5",
+      "Rotation": "0,0,0,1",
+      "Scale": "7,4,0.100000001",
+      "Tags": "",
+      "Enabled": true,
+      "NetworkMode": 2,
+      "NetworkFlags": 0,
+      "NetworkOrphaned": 0,
+      "NetworkTransmit": true,
+      "OwnerTransfer": 1,
+      "Components": [
+        {
+          "__type": "Sandbox.ModelRenderer",
+          "__guid": "7b288cda-e761-46bf-af13-bf832cb1794e",
+          "__enabled": true,
+          "Flags": 0,
+          "BodyGroups": 18446744073709551615,
+          "CreateAttachments": false,
+          "LodOverride": null,
+          "MaterialGroup": null,
+          "MaterialOverride": null,
+          "Materials": null,
+          "Model": "models/dev/box.vmdl",
+          "OnComponentDestroy": null,
+          "OnComponentDisabled": null,
+          "OnComponentEnabled": null,
+          "OnComponentFixedUpdate": null,
+          "OnComponentStart": null,
+          "OnComponentUpdate": null,
+          "RenderOptions": {
+            "GameLayer": true,
+            "OverlayLayer": false,
+            "BloomLayer": false,
+            "AfterUILayer": false
+          },
+          "RenderType": "On",
+          "Tint": "0.25,0.28,0.32,1"
+        }
+      ],
+      "Children": []
+    }
+  ],
+  "SceneProperties": {
+    "NetworkInterpolation": true,
+    "PhysicsMode": "Physics3D",
+    "TimeScale": 1,
+    "WantsSystemScene": true,
+    "Metadata": {},
+    "NavMesh": {
+      "Enabled": false,
+      "IncludeStaticBodies": true,
+      "IncludeKeyframedBodies": true,
+      "EditorAutoUpdate": false,
+      "AgentHeight": 64,
+      "AgentRadius": 16,
+      "AgentStepSize": 18,
+      "AgentMaxSlope": 40,
+      "ExcludedBodies": "",
+      "IncludedBodies": "",
+      "DeferGeneration": false,
+      "CustomBounds": false
+    },
+    "GameObjectSystems": {
+      "Sandbox.Clutter.ClutterGridSystem": {
+        "Storage": {
+          "$blob": "64db792e-5935-8fbc-8cfa-050cd49fa7fd",
+          "$refs": []
+        }
+      },
+      "Sandbox.SelectionSetsSystem": {
+        "Data": {
+          "SelectionSets": []
+        }
+      }
+    }
+  },
+  "ResourceVersion": 3,
+  "Title": null,
+  "Description": null,
+  "__references": [],
+  "__version": 3
+}

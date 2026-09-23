@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "675dd52f-28c8-3f26-ef2c-183f2415c891",
+    "__version": 2,
+    "Name": "Skelett (SUMMONEDBYNPC_SKELETON)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "2d38098f-c0cb-d207-d97e-dd8b7c08fe37",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/summonedbynpc_skeleton_skelett.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

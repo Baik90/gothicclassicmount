@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "a923ed8a-c622-2c25-c2fd-d4da2abd03d9",
+    "__version": 2,
+    "Name": "Minecrawler Warrior (MINECRAWLERWARRIOR)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "579b9cf6-4162-7894-d1a9-a157399d0004",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/minecrawlerwarrior_minecrawler_warrior.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

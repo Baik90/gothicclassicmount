@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "7a8cddb5-a312-d662-38cc-8385b4221556",
+    "__version": 2,
+    "Name": "verr\u00FCckter Cor Kalom (GUR_1212_MADCORKALOM)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "ce13f887-f268-d5a0-fd6c-515eeb41d71a",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/gur_1212_madcorkalom_verr\u00FCckter_cor_kalom.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

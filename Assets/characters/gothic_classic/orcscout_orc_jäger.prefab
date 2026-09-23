@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "87eb19c1-0ec5-bbe6-c7ec-5c3447b7f421",
+    "__version": 2,
+    "Name": "Orc J\u00E4ger (ORCSCOUT)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "f6d584aa-b32c-29cb-a0c0-e8c5419c116f",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/orcscout_orc_j\u00E4ger.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

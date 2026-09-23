@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "221e83d1-ef61-a23b-9f82-dda6b0567130",
+    "__version": 2,
+    "Name": "Varrag-Ruuushk (ORC_PRIEST_4)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "0.9,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "587f5515-8864-6fc0-b7d1-5ca2de63242b",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/orc_priest_4_varrag-ruuushk.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

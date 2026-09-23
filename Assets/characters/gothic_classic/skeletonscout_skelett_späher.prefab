@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "5cffb350-5645-5bc8-0130-d373c5b093e7",
+    "__version": 2,
+    "Name": "Skelett Sp\u00E4her (SKELETONSCOUT)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "d3b52c6f-3c99-d1fc-eda4-42131697b07c",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/skeletonscout_skelett_sp\u00E4her.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "85f1ad6b-39e7-179f-22b1-424938b1f879",
+    "__version": 2,
+    "Name": "Goblin Krieger (BLACKGOBBOWARRIOR)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "13b59904-8140-b8f0-f595-d03d12dd4875",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/blackgobbowarrior_goblin_krieger.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

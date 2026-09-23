@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "42d8b5d1-1648-8479-f1cf-035dd901d829",
+    "__version": 2,
+    "Name": "Orc Sp\u00E4her (ORCSCOUTGYD)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "e007433c-58c6-b37e-b2d9-5a3c7ad68240",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/orcscoutgyd_orc_sp\u00E4her.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

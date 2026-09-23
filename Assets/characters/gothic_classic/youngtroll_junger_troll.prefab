@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "25b29dad-cc93-2b80-8cd7-185ef87a47da",
+    "__version": 2,
+    "Name": "junger Troll (YOUNGTROLL)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "0.7,0.7,0.7",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "14f90ce6-d296-c98e-6372-25e95e0ea3e3",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/youngtroll_junger_troll.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

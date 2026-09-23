@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "a62f7fb7-3dca-2ea8-94aa-acc2fe67f1d4",
+    "__version": 2,
+    "Name": "Br\u00FCcken Golem (BRIDGEGOLEM)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "a686a861-9e9f-37fa-d9b3-e9b3c78cffcf",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/bridgegolem_br\u00FCcken_golem.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_FISTRUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

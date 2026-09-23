@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "f00b6878-6869-b109-b4cc-9ae0816fe224",
+    "__version": 2,
+    "Name": "Yellow Pfeiffer (INEXTREMO_YELLOWPFEIFFER)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "250879a0-1daf-dcac-af50-9d0e5019bcb9",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/inextremo_yellowpfeiffer_yellow_pfeiffer.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

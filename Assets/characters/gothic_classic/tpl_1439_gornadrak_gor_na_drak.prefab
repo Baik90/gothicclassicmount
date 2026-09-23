@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "06c1aa73-2982-6f6f-2106-7aba861271ea",
+    "__version": 2,
+    "Name": "Gor Na Drak (TPL_1439_GORNADRAK)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "4b4f039f-c0bf-a5b3-c4af-ab29912b2993",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/tpl_1439_gornadrak_gor_na_drak.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}

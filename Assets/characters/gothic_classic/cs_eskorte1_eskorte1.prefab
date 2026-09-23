@@ -1,0 +1,31 @@
+{
+  "RootObject": {
+    "__guid": "76b9171f-2128-ec2d-5b60-ff1bbf69f5d0",
+    "__version": 2,
+    "Name": "Eskorte1 (CS_ESKORTE1)",
+    "Enabled": true,
+    "Position": "0,0,0",
+    "Rotation": "0,0,0,1",
+    "Scale": "1.1,1,1",
+    "Tags": "gothic_character",
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "6852375c-101e-ad58-ba8a-d5fbaee97a45",
+        "__enabled": true,
+        "Model": "mount://gothicclassic/_gothicruntime/characters/gothic_classic/cs_eskorte1_eskorte1.vmdl",
+        "UseAnimGraph": false,
+        "CreateBoneObjects": false,
+        "Sequence": {
+          "Name": "S_RUN",
+          "Looping": true
+        }
+      }
+    ],
+    "Children": []
+  },
+  "ResourceVersion": 2,
+  "__version": 2,
+  "ShowInMenu": true,
+  "MenuPath": "Gothic/Characters"
+}
