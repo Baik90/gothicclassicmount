@@ -15,9 +15,14 @@ internal sealed class GothicPrefabResource( string sourcePath ) : ResourceLoader
 		var builder = new PrefabBuilder().WithName( Path );
 		using ( builder.Scope() )
 		{
-			var root = new GameObject( System.IO.Path.GetFileNameWithoutExtension( sourcePath ) );
-			// Stable source IDs keep saved instance overrides valid after remounting.
-			root.Deserialize( new JsonObject
+			// Register an empty template, without queuing component callbacks in a
+			// temporary scene while the real scene is being deserialized.
+			new GameObject( false, System.IO.Path.GetFileNameWithoutExtension( sourcePath ) );
+		}
+		_prefab = builder.Create();
+		// PrefabBuilder.Create randomizes all IDs. Assign the stable source JSON
+		// AFTER Create so saved instance patches keep resolving after a remount.
+		_prefab.RootObject = new JsonObject
 			{
 				["__guid"] = JsonValue.Create( StableId( "root" ) ),
 				["Name"] = System.IO.Path.GetFileNameWithoutExtension( sourcePath ),
@@ -36,9 +41,7 @@ internal sealed class GothicPrefabResource( string sourcePath ) : ResourceLoader
 					["Static"] = true,
 					["Model"] = Host.GetMountedResourceUri( Host.GetMountedModelResourcePath( sourcePath ) )
 				} )
-			} );
-		}
-		_prefab = builder.Create();
+			};
 		return _prefab;
 	}
 

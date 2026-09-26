@@ -1,11 +1,11 @@
 using System.Reflection;
 using ZenKit;
 
-if ( args.Contains("--characters") || args.Contains("--animations") )
+if ( args.Contains("--characters") || args.Contains("--animations") || args.Contains("--sky") )
 {
 	var option=Array.IndexOf(args,"--install");
 	var install=option>=0 && option+1<args.Length ? args[option+1] : @"D:\Steam\steamapps\common\Gothic";
-	if(args.Contains("--characters")) Characters.Inspect(install); else AnimationInspect.Inspect(install);
+	if(args.Contains("--characters")) Characters.Inspect(install); else if(args.Contains("--sky")) SkyInspect.Inspect(install); else AnimationInspect.Inspect(install);
 	return;
 }
 if ( args.Contains("--animation-api") )

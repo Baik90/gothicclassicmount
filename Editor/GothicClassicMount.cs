@@ -105,6 +105,7 @@ public sealed partial class GothicClassicMount : BaseGameMount
 				_assetDescriptors[file.VirtualPath] = BuildAssetDescriptor( file.VirtualPath, true );
 				_mountedWorldPaths.Add( file.VirtualPath );
 				context.Add( ResourceType.Scene, ToInternalMountedWorldScenePath( file.VirtualPath ), new GothicWorldSceneResource( file.VirtualPath ) );
+				context.Add( ResourceType.Model, IOPath.ChangeExtension( ToInternalMountedWorldScenePath( file.VirtualPath ), ".scene_mesh.vmdl" ), new GothicWorldResource( file.VirtualPath, includeTrees: false ) );
 				context.Add( ResourceType.Model, ToInternalMountedWorldPath( file.VirtualPath ), new GothicWorldResource( file.VirtualPath ) );
 			}
 			else if ( IsModelExtension( extension ) )
@@ -117,10 +118,31 @@ public sealed partial class GothicClassicMount : BaseGameMount
 			}
 		}
 
+		context.Add( ResourceType.Material, GothicWorldSky.MaterialPath, new GothicSkyMaterialResource() );
+		context.Add( ResourceType.Material, GothicWorldSky.BarrierMaterialPath, new GothicBarrierMaterialResource() );
+		context.Add( ResourceType.Model, GothicWorldSky.BarrierModelPath, new GothicBarrierModelResource() );
 		RegisterCharacters( context );
 		Log.Info( $"Mounted Gothic Classic from '{InstallDirectory}' with {allFiles.Length} files." );
 		IsMounted = true;
-		return Task.CompletedTask;
+		return RefreshRegisteredWorldScenes();
+	}
+
+	private async Task RefreshRegisteredWorldScenes()
+	{
+		foreach ( var loader in GetAll( ResourceType.PrefabFile ) )
+		{
+			if ( ResourceLibrary.Get<PrefabFile>( loader.Path ) is not null )
+				await loader.GetOrCreate();
+		}
+		// SceneFile.Load returns registered resources before consulting the mount.
+		// A hot reload can leave a scene owned by an earlier loader registered;
+		// rebuild those definitions against this mount's current prefab sources.
+		foreach ( var loader in GetAll( ResourceType.Scene ) )
+		{
+			var isColony = loader is GothicWorldSceneResource worldScene && GothicWorldSky.IsColony( worldScene.SourcePath );
+			if ( isColony || ResourceLibrary.Get<SceneFile>( loader.Path ) is not null )
+				await loader.GetOrCreate();
+		}
 	}
 
 	public string GetMountedPrefabResourcePath( string virtualPath ) =>
@@ -165,14 +187,7 @@ public sealed partial class GothicClassicMount : BaseGameMount
 
 	public SMaterial LoadMaterial( object gothicMaterial, string fallbackMaterialName )
 	{
-		var materialInfo = ResolveMaterialInfo( gothicMaterial, fallbackMaterialName );
-		return LoadMaterial( new GothicMaterialDescriptor
-		{
-			MaterialName = materialInfo.MaterialName,
-			TexturePath = materialInfo.TexturePath,
-			CacheKey = materialInfo.CacheKey,
-			DebugSource = materialInfo.DebugSource
-		} );
+		return LoadMaterial( CreateMaterialDescriptor( gothicMaterial, fallbackMaterialName ) );
 	}
 
 	public SMaterial LoadMaterial( GothicMaterialDescriptor descriptor )
@@ -185,7 +200,11 @@ public sealed partial class GothicClassicMount : BaseGameMount
 			DebugSource = "null_descriptor"
 		};
 
-		var cacheKey = "alpha_cutout_v2_" + materialInfo.CacheKey;
+		var waterIdentity = $"{materialInfo.MaterialName} {materialInfo.TexturePath}";
+		var hasWaterTextureName = new[] { "WATER", "WASSER", "WAT", "SEA", "SWAMP", "WFALL" }
+			.Any( marker => waterIdentity.Contains( marker, StringComparison.OrdinalIgnoreCase ) );
+		var isWater = string.Equals( materialInfo.Group, "Water", StringComparison.OrdinalIgnoreCase ) && hasWaterTextureName;
+		var cacheKey = ( isWater ? "water_v3_" : "alpha_cutout_v2_" ) + materialInfo.CacheKey;
 		lock ( _cacheLock )
 		{
 			if ( _materialCache.TryGetValue( cacheKey, out var cachedMaterial ) )
@@ -199,9 +218,21 @@ public sealed partial class GothicClassicMount : BaseGameMount
 			Log.Info( $"Gothic material '{materialInfo.MaterialName}' did not resolve to a texture. Source: {materialInfo.DebugSource}" );
 		}
 
-		var material = SMaterial.Create( safeMaterialName, "gothic_surface" );
-		material.SetFeature( "F_ALPHA_TEST", 1 );
-		material.Attributes?.SetCombo( "D_RENDER_BACKFACES", true );
+		var material = SMaterial.Create( safeMaterialName, isWater ? "gothic_water" : "gothic_surface" );
+		if ( isWater )
+		{
+			material.SetFeature( "F_TRANSLUCENT", 1 );
+			material.Attributes?.SetCombo( "D_RENDER_BACKFACES", true );
+			material.Set( "WaterTint", materialInfo.Color );
+			material.Set( "g_vFlowDirection", materialInfo.TextureAnimationDirection );
+			material.Set( "g_flAnimationFps", materialInfo.TextureAnimationFps );
+			material.Set( "g_bLinearFlow", string.Equals( materialInfo.TextureAnimationMapping, "Linear", StringComparison.OrdinalIgnoreCase ) ? 1 : 0 );
+		}
+		else
+		{
+			material.SetFeature( "F_ALPHA_TEST", 1 );
+			material.Attributes?.SetCombo( "D_RENDER_BACKFACES", true );
+		}
 		material.Set( "Color", materialInfo.TexturePath is null ? Sandbox.Texture.White : LoadTexture( materialInfo.TexturePath ) );
 
 		lock ( _cacheLock )
@@ -608,8 +639,44 @@ public sealed partial class GothicClassicMount : BaseGameMount
 			MaterialName = info.MaterialName,
 			TexturePath = info.TexturePath,
 			CacheKey = info.CacheKey,
-			DebugSource = info.DebugSource
+			DebugSource = info.DebugSource,
+			Group = ReadMaterialString( gothicMaterial, "Group" ),
+			Color = ReadMaterialColor( gothicMaterial ),
+			TextureAnimationFps = ReadMaterialFloat( gothicMaterial, "TextureAnimationFps" ),
+			TextureAnimationMapping = ReadMaterialString( gothicMaterial, "TextureAnimationMapping" ),
+			TextureAnimationDirection = ReadMaterialVector2( gothicMaterial, "TextureAnimationMappingDirection" )
 		};
+	}
+
+	private static string ReadMaterialString( object material, string member )
+	{
+		return ( ZenKitRuntime.GetProperty( material, member ) ?? ZenKitRuntime.GetField( material, member ) )?.ToString() ?? string.Empty;
+	}
+
+	private static float ReadMaterialFloat( object material, string member )
+	{
+		var value = ZenKitRuntime.GetProperty( material, member ) ?? ZenKitRuntime.GetField( material, member );
+		return value is null ? 0f : Convert.ToSingle( value );
+	}
+
+	private static Vector2 ReadMaterialVector2( object material, string member )
+	{
+		var value = ZenKitRuntime.GetProperty( material, member ) ?? ZenKitRuntime.GetField( material, member );
+		if ( value is null ) return Vector2.Zero;
+		dynamic vector = value;
+		return new Vector2( Convert.ToSingle( vector.X ), Convert.ToSingle( vector.Y ) );
+	}
+
+	private static Vector4 ReadMaterialColor( object material )
+	{
+		var value = ZenKitRuntime.GetProperty( material, "Color" ) ?? ZenKitRuntime.GetField( material, "Color" );
+		if ( value is null ) return Vector4.One;
+		dynamic color = value;
+		return new Vector4(
+			Convert.ToSingle( color.R ) / 255f,
+			Convert.ToSingle( color.G ) / 255f,
+			Convert.ToSingle( color.B ) / 255f,
+			Convert.ToSingle( color.A ) / 255f );
 	}
 
 	public string DescribeMaterial( object gothicMaterial, string fallbackMaterialName )
@@ -953,5 +1020,10 @@ public sealed partial class GothicClassicMount : BaseGameMount
 		public string TexturePath { get; init; }
 		public string CacheKey { get; init; }
 		public string DebugSource { get; init; }
+		public string Group { get; init; }
+		public Vector4 Color { get; init; } = Vector4.One;
+		public float TextureAnimationFps { get; init; }
+		public string TextureAnimationMapping { get; init; }
+		public Vector2 TextureAnimationDirection { get; init; }
 	}
 }

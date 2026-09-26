@@ -5,18 +5,20 @@ namespace GothicClassicMount;
 
 internal sealed class GothicWorldResource : ResourceLoader<GothicClassicMount>
 {
-	public GothicWorldResource( string virtualPath )
+	public GothicWorldResource( string virtualPath, bool includeTrees = true )
 	{
 		SourcePath = virtualPath;
+		IncludeTrees = includeTrees;
 	}
 
 	public string SourcePath { get; }
+	private bool IncludeTrees { get; }
 
 	protected override object Load()
 	{
 		try
 		{
-			return GothicGeometryBuilder.BuildWorldModel( Host, SourcePath, Path );
+			return GothicGeometryBuilder.BuildWorldModel( Host, SourcePath, Path, includeTrees: IncludeTrees );
 		}
 		catch ( Exception exception )
 		{
