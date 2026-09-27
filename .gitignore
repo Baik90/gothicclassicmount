@@ -30,3 +30,4 @@ code/Properties/*
 # Exported / standalone games
 Exports/
 *.vmdl
+*.prefab
