@@ -172,16 +172,18 @@ internal static class GothicGeometryBuilder
 		if ( extension.Equals( ".MDL", StringComparison.OrdinalIgnoreCase ) )
 		{
 			dynamic model = ZenKitRuntime.CreateModel( host.RequireVfs(), virtualPath );
-			return BuildModelFromModelMesh( host, resourcePath, model.Mesh, descriptor );
+			return BuildModelFromModelMesh( host, resourcePath, model.Mesh, descriptor, model.Hierarchy );
 		}
 
 		throw new NotSupportedException( $"Unsupported Gothic model extension '{extension}'." );
 	}
 
-	private static Model BuildModelFromModelMesh( GothicClassicMount host, string name, dynamic modelMesh, GothicClassicMount.GothicAssetDescriptor descriptor )
+	private static Model BuildModelFromModelMesh( GothicClassicMount host, string name, dynamic modelMesh, GothicClassicMount.GothicAssetDescriptor descriptor, object hierarchy = null )
 	{
 		var meshes = new List<Sandbox.Mesh>();
 		var materialIndex = 0;
+		var transforms = GetAttachmentTransforms( hierarchy );
+		var collisionSources = new List<(object Mesh, Func<Vector3, Vector3> Transform)>();
 
 		foreach ( var softSkinMesh in (IEnumerable)modelMesh.Meshes )
 		{
@@ -189,16 +191,29 @@ internal static class GothicGeometryBuilder
 			if ( softMesh is not null )
 			{
 				meshes.AddRange( BuildRenderMeshes( host, softMesh, descriptor, ref materialIndex ) );
+				collisionSources.Add( (softMesh, null) );
 			}
 		}
 
-		if ( meshes.Count == 0 )
+		// Attachments are node-local and can coexist with soft-skin meshes.
 		{
 			foreach ( DictionaryEntry attachment in (IDictionary)modelMesh.Attachments )
 			{
 				if ( attachment.Value is not null )
 				{
-					meshes.AddRange( BuildRenderMeshes( host, attachment.Value, descriptor, ref materialIndex ) );
+					Func<Vector3, Vector3> transformPoint = null;
+					if ( transforms.TryGetValue( (string)attachment.Key, out var matrix ) )
+					{
+						transformPoint = position =>
+						{
+							// Vertices have already been scaled and converted from Gothic Y-up to Z-up.
+							var source = new System.Numerics.Vector3( position.x, position.z, position.y ) / 0.36f;
+							var result = System.Numerics.Vector3.Transform( source, matrix );
+							return new Vector3( result.X, result.Z, result.Y ) * 0.36f;
+						};
+					}
+					meshes.AddRange( BuildRenderMeshes( host, attachment.Value, descriptor, ref materialIndex, transformPoint ) );
+					collisionSources.Add( (attachment.Value, transformPoint) );
 				}
 			}
 		}
@@ -208,7 +223,30 @@ internal static class GothicGeometryBuilder
 
 		var builder = Model.Builder.WithName( name );
 		builder.AddMeshes( meshes.ToArray() );
+		foreach ( var source in collisionSources )
+			AddModelCollision( builder, source.Mesh, source.Transform );
 		return builder.Create();
+	}
+
+	private static Dictionary<string, System.Numerics.Matrix4x4> GetAttachmentTransforms( object hierarchy )
+	{
+		var result = new Dictionary<string, System.Numerics.Matrix4x4>( StringComparer.OrdinalIgnoreCase );
+		if ( ZenKitRuntime.GetProperty( hierarchy, "Nodes" ) is not IEnumerable source ) return result;
+		var nodes = source.Cast<object>().ToArray();
+		var matrices = new System.Numerics.Matrix4x4[nodes.Length];
+		var ready = new bool[nodes.Length];
+		System.Numerics.Matrix4x4 Resolve( int index )
+		{
+			if ( ready[index] ) return matrices[index];
+			var local = System.Numerics.Matrix4x4.Transpose( (System.Numerics.Matrix4x4)ZenKitRuntime.GetProperty( nodes[index], "Transform" ) );
+			var parent = Convert.ToInt32( ZenKitRuntime.GetProperty( nodes[index], "ParentIndex" ) );
+			matrices[index] = parent >= 0 ? local * Resolve( parent ) : local;
+			ready[index] = true;
+			return matrices[index];
+		}
+		for ( var i = 0; i < nodes.Length; i++ )
+			result[ZenKitRuntime.GetProperty<string>( nodes[i], "Name" )] = Resolve( i );
+		return result;
 	}
 
 	private static Model BuildModelFromMultiResolutionMesh( GothicClassicMount host, string name, object mesh, GothicClassicMount.GothicAssetDescriptor descriptor )
@@ -224,7 +262,7 @@ internal static class GothicGeometryBuilder
 		return builder.Create();
 	}
 
-	private static void AddModelCollision( ModelBuilder builder, object mesh )
+	private static void AddModelCollision( ModelBuilder builder, object mesh, Func<Vector3, Vector3> transformPoint = null )
 	{
 		var vertices = new List<Vector3>();
 		var indices = new List<int>();
@@ -237,6 +275,12 @@ internal static class GothicGeometryBuilder
 				var a = CreateTriangleVertex( mesh, subMesh, ZenKitRuntime.GetFieldValue<ushort>( triangle, "Wedge0" ) ).position;
 				var b = CreateTriangleVertex( mesh, subMesh, ZenKitRuntime.GetFieldValue<ushort>( triangle, "Wedge1" ) ).position;
 				var c = CreateTriangleVertex( mesh, subMesh, ZenKitRuntime.GetFieldValue<ushort>( triangle, "Wedge2" ) ).position;
+				if ( transformPoint is not null )
+				{
+					a = transformPoint( a );
+					b = transformPoint( b );
+					c = transformPoint( c );
+				}
 				if ( Vector3.Cross( b - a, c - a ).LengthSquared < 0.000001f ) continue;
 				indices.Add( Vertex( a ) );
 				indices.Add( Vertex( b ) );

@@ -37,8 +37,79 @@ foreach ( var vdf in Directory.EnumerateFiles( dataPath, "*.VDF" ) )
 	vfs.MountDisk( vdf, VfsOverwriteBehavior.Older );
 }
 
+if ( args.Contains( "--sounds" ) )
+{
+	var counts = new Dictionary<int, int>();
+	void VisitSound( dynamic entry, string path )
+	{
+		if ( entry.IsDir() ) { foreach ( var child in entry.Children ) VisitSound( child, path + "/" + child.Name ); return; }
+		if ( !path.EndsWith( ".WAV", StringComparison.OrdinalIgnoreCase ) ) return;
+		byte[] data = entry.Buffer.Bytes;
+		var decoded = GothicClassicMount.GothicWaveDecoder.ToPcm( data );
+		if ( decoded.Length < 44 ) throw new InvalidDataException( path );
+		for ( int offset = 12; offset + 8 <= data.Length; )
+		{
+			int size = BitConverter.ToInt32( data, offset + 4 );
+			if ( System.Text.Encoding.ASCII.GetString( data, offset, 4 ) == "fmt " )
+			{
+				int format = BitConverter.ToUInt16( data, offset + 8 );
+				if ( !counts.ContainsKey( format ) ) Console.WriteLine( $"{path}: format={format} fmt={Convert.ToHexString(data.AsSpan(offset+8,size))}" );
+				counts[format] = counts.GetValueOrDefault( format ) + 1;
+				break;
+			}
+			if ( size < 0 || size > data.Length - offset - 8 ) break;
+			offset += 8 + size + (size & 1);
+		}
+	}
+	VisitSound( vfs.Root, "" );
+	foreach ( var count in counts ) Console.WriteLine( $"Format {count.Key}: {count.Value}" );
+	return;
+}
 var node = vfs.Resolve( worldPath ) ?? throw new InvalidOperationException( $"{worldPath} not resolved" );
+if ( args.Contains( "--buffer-api" ) )
+{
+	foreach ( var member in node.Buffer.GetType().GetMembers() ) Console.WriteLine( member );
+	return;
+}
+if ( args.Contains( "--model" ) )
+{
+	if ( worldPath.EndsWith( ".MDM", StringComparison.OrdinalIgnoreCase ) )
+	{
+		DumpType( "Mesh", new ModelMesh( node.Buffer ) );
+		return;
+	}
+	var model = new Model( node.Buffer );
+	DumpType( "Model", model );
+	DumpType( "Mesh", model.Mesh );
+	DumpType( "Hierarchy", model.Hierarchy );
+	foreach ( var entry in model.Hierarchy.Nodes ) DumpType( "Node", entry );
+	return;
+}
 var world = new World( node.Buffer );
+
+if ( args.Contains( "--mobs" ) )
+{
+	var seen = new HashSet<string>( StringComparer.OrdinalIgnoreCase );
+	void InspectMob( object vob )
+	{
+		var visual = ReadVisualPath( vob ) ?? "";
+		if ( (new[] { "BENCH", "FIRE", "TORCH", "WINCH", "WHEEL", "CRANK" }.Any( s => visual.Contains( s, StringComparison.OrdinalIgnoreCase ) ) || vob.GetType().Name.Contains( "Wheel" )) && seen.Add( visual ) )
+		{
+			Console.WriteLine( $"{vob.GetType().Name}: {visual} show={ReadObjectMember(vob, "ShowVisual")}" );
+			if ( visual.Equals( "FIREPLACE_HIGH2.ASC", StringComparison.OrdinalIgnoreCase ) ) DumpType( "Fire VOB", vob );
+			foreach ( var ext in new[] { ".MDL", ".MDM", ".MRM", ".MSH", ".MDS", ".MSB" } )
+			{
+				var file = Path.ChangeExtension( visual, ext );
+				var found = vfs.Resolve( file ) ?? vfs.Resolve( "_WORK/DATA/ANIMS/_COMPILED/" + file ) ?? vfs.Resolve( "_WORK/DATA/MESHES/_COMPILED/" + file );
+				if ( found is not null ) Console.WriteLine( $"  resolved {file}" );
+			}
+		}
+		if ( ReadEnumerableMember( vob, "Children" ) is System.Collections.IEnumerable children )
+			foreach ( var child in children ) InspectMob( child );
+	}
+	foreach ( var root in world.RootObjects ) InspectMob( root );
+	return;
+}
 
 void DumpTree( object vob )
 {

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<Compile Include="../../Editor/GothicWaveDecoder.cs" Link="GothicWaveDecoder.cs" />
 	<Compile Include="../../Editor/GothicCharacterCatalog.cs" Link="GothicCharacterCatalog.cs" />
 	<Compile Include="../../Editor/GothicCharacterMeshReader.cs" Link="GothicCharacterMeshReader.cs" />
 	<Compile Include="../../Editor/GothicCharacterAnimationReader.cs" Link="GothicCharacterAnimationReader.cs" />

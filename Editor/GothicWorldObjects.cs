@@ -20,10 +20,15 @@ internal static class GothicWorldObjects
 		}
 		var world = host.CreateWorld( worldPath );
 		if ( ZenKitRuntime.GetProperty( world, "RootObjects" ) is not IEnumerable roots ) return;
-		var models = host.MountedModelPaths
-			.Where( p => p.EndsWith( ".MRM", StringComparison.OrdinalIgnoreCase ) || p.EndsWith( ".MSH", StringComparison.OrdinalIgnoreCase ) )
+		var modelPaths = host.MountedModelPaths
+			.Where( IsSupportedModel )
+			.ToArray();
+		var modelsByFile = modelPaths
+			.GroupBy( p => Path.GetFileName( p ), StringComparer.OrdinalIgnoreCase )
+			.ToDictionary( g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase );
+		var modelsByStem = modelPaths
 			.GroupBy( p => Path.GetFileNameWithoutExtension( p ), StringComparer.OrdinalIgnoreCase )
-			.ToDictionary( g => g.Key, g => g.OrderBy( p => p.EndsWith( ".MRM", StringComparison.OrdinalIgnoreCase ) ? 0 : 1 ).First(), StringComparer.OrdinalIgnoreCase );
+			.ToDictionary( g => g.Key, g => g.OrderBy( ModelPriority ).First(), StringComparer.OrdinalIgnoreCase );
 		var prefabs = new Dictionary<string, PrefabFile>( StringComparer.OrdinalIgnoreCase );
 		var failedModels = new HashSet<string>( StringComparer.OrdinalIgnoreCase );
 		var existingVobs = existing?.Children.SelectMany( child => child.Tags )
@@ -51,8 +56,9 @@ internal static class GothicWorldObjects
 			if ( !existingVobs.Contains( vobTag ) && ZenKitRuntime.GetProperty<bool>( vob, "ShowVisual" ) && !string.IsNullOrWhiteSpace( visualName ) )
 			{
 				var extension = Path.GetExtension( visualName );
-				if ( (extension.Equals( ".3DS", StringComparison.OrdinalIgnoreCase ) || extension.Equals( ".MRM", StringComparison.OrdinalIgnoreCase ) || extension.Equals( ".MSH", StringComparison.OrdinalIgnoreCase )) &&
-					models.TryGetValue( Path.GetFileNameWithoutExtension( visualName ), out var modelPath ) && !failedModels.Contains( modelPath ) )
+				var hasModel = modelsByFile.TryGetValue( Path.GetFileName( visualName ), out var modelPath )
+					|| modelsByStem.TryGetValue( Path.GetFileNameWithoutExtension( visualName ), out modelPath );
+				if ( IsSupportedVisual( extension ) && hasModel && !failedModels.Contains( modelPath ) )
 				{
 					try
 					{
@@ -69,6 +75,7 @@ internal static class GothicWorldObjects
 						instance.LocalTransform = transform;
 						instance.Tags.Add( vobTag );
 						SetCollision( instance, ZenKitRuntime.GetProperty<bool>( vob, "CdDynamic" ) );
+						ConfigureInteraction( instance, vob, visualName );
 						imported++;
 						existingVobs.Add( vobTag );
 					}
@@ -113,7 +120,7 @@ internal static class GothicWorldObjects
 		var byPosition = sources.GroupBy( v => GetTransform( v ).Position )
 			.ToDictionary( g => g.Key, g => g.ToList() );
 		var paths = host.MountedModelPaths
-			.Where( p => p.EndsWith( ".MRM", StringComparison.OrdinalIgnoreCase ) || p.EndsWith( ".MSH", StringComparison.OrdinalIgnoreCase ) )
+			.Where( IsSupportedModel )
 			.GroupBy( p => host.GetMountedResourceUri( host.GetMountedModelResourcePath( p ) ), StringComparer.OrdinalIgnoreCase )
 			.ToDictionary( g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase );
 		var models = new Dictionary<string, Model>( StringComparer.OrdinalIgnoreCase );
@@ -154,6 +161,8 @@ internal static class GothicWorldObjects
 			instance.Tags.Add( $"gothic_vob_{ZenKitRuntime.GetProperty<int>( vob, "Id" )}" );
 			var enabled = ZenKitRuntime.GetProperty<bool>( vob, "CdDynamic" );
 			SetCollision( instance, enabled );
+			var visualName = ZenKitRuntime.GetProperty<string>( ZenKitRuntime.GetProperty( vob, "Visual" ), "Name" );
+			ConfigureInteraction( instance, vob, visualName );
 			if ( enabled ) enabledCount++; else disabledCount++;
 		}
 		Log.Info( $"Gothic object collision [{worldPath}]: Enabled={enabledCount} Disabled={disabledCount} Unmatched={unmatched} Models={models.Count}" );
@@ -165,6 +174,95 @@ internal static class GothicWorldObjects
 				foreach ( var child in children ) Visit( child );
 		}
 	}
+
+	private static bool IsSupportedModel( string path )
+	{
+		var extension = Path.GetExtension( path );
+		return extension.Equals( ".MRM", StringComparison.OrdinalIgnoreCase )
+			|| extension.Equals( ".MSH", StringComparison.OrdinalIgnoreCase )
+			|| extension.Equals( ".MDL", StringComparison.OrdinalIgnoreCase )
+			|| extension.Equals( ".MDM", StringComparison.OrdinalIgnoreCase );
+	}
+
+	private static bool IsSupportedVisual( string extension ) =>
+		extension.Equals( ".3DS", StringComparison.OrdinalIgnoreCase )
+		|| extension.Equals( ".MRM", StringComparison.OrdinalIgnoreCase )
+		|| extension.Equals( ".MSH", StringComparison.OrdinalIgnoreCase )
+		|| extension.Equals( ".MDL", StringComparison.OrdinalIgnoreCase )
+		|| extension.Equals( ".MDM", StringComparison.OrdinalIgnoreCase )
+		// ZEN visuals keep authoring/script names; the VDF contains compiled MDL/MDM models.
+		|| extension.Equals( ".ASC", StringComparison.OrdinalIgnoreCase )
+		|| extension.Equals( ".MDS", StringComparison.OrdinalIgnoreCase );
+
+	private static int ModelPriority( string path )
+	{
+		var extension = Path.GetExtension( path );
+		if ( extension.Equals( ".MRM", StringComparison.OrdinalIgnoreCase ) ) return 0;
+		if ( extension.Equals( ".MSH", StringComparison.OrdinalIgnoreCase ) ) return 1;
+		if ( extension.Equals( ".MDL", StringComparison.OrdinalIgnoreCase ) ) return 2;
+		if ( extension.Equals( ".MDM", StringComparison.OrdinalIgnoreCase ) ) return 3;
+		return 3;
+	}
+
+	private static void ConfigureInteraction( GameObject instance, object vob, string visualName )
+	{
+		var kind = ClassifyInteraction( vob, visualName );
+		if ( kind == GothicInteractionKind.None ) return;
+
+		var interaction = instance.Components.Get<GothicWorldInteractable>( FindMode.InSelf | FindMode.Enabled | FindMode.Disabled )
+			?? instance.Components.Create<GothicWorldInteractable>();
+		interaction.Kind = kind;
+		interaction.VobId = ZenKitRuntime.GetProperty<int>( vob, "Id" );
+		interaction.VobClass = vob.GetType().Name;
+		interaction.FocusName = ReadString( vob, "FocusName" );
+		interaction.SchemeName = ReadString( vob, "SchemeName" );
+		interaction.KeyInstance = ReadString( vob, "Key" );
+		interaction.IsLocked = ZenKitRuntime.GetProperty<bool>( vob, "Locked" );
+		interaction.InitiallyActive = kind is GothicInteractionKind.Torch or GothicInteractionKind.Fire;
+		instance.Tags.Add( "gothic_interactable" );
+		instance.Tags.Add( $"gothic_interaction_{kind.ToString().ToLowerInvariant()}" );
+		var collider = instance.Components.Get<ModelCollider>( FindMode.InSelf | FindMode.Enabled | FindMode.Disabled );
+		if ( collider is not null ) collider.Enabled = true;
+
+		if ( kind is GothicInteractionKind.Torch or GothicInteractionKind.Fire &&
+			instance.Components.Get<PointLight>( FindMode.EverythingInSelfAndDescendants ) is null )
+		{
+			var lightObject = new GameObject( "Gothic Fire Light" );
+			lightObject.Parent = instance;
+			lightObject.LocalTransform = new Transform( Vector3.Up * 45f );
+			var light = lightObject.Components.Create<PointLight>();
+			light.LightColor = new Color( 1f, 0.34f, 0.08f );
+			light.Shadows = false;
+		}
+	}
+
+	private static GothicInteractionKind ClassifyInteraction( object vob, string visualName )
+	{
+		var text = string.Join( ' ', new[]
+		{
+			vob.GetType().Name,
+			ZenKitRuntime.GetProperty<string>( vob, "Name" ),
+			visualName,
+			ReadString( vob, "FocusName" ),
+			ReadString( vob, "SchemeName" )
+		}.Where( value => !string.IsNullOrWhiteSpace( value ) ) ).ToUpperInvariant();
+
+		if ( ContainsAny( text, "BENCH", "CHAIR", "THRONE", "SIT", "BANK" ) ) return GothicInteractionKind.Seat;
+		if ( ContainsAny( text, "TORCH", "FACKEL" ) ) return GothicInteractionKind.Torch;
+		if ( ContainsAny( text, "FIRE", "CAMPFIRE", "FEUER" ) ) return GothicInteractionKind.Fire;
+		if ( ContainsAny( text, "CHEST", "CONTAINER", "TRUHE" ) ) return GothicInteractionKind.Container;
+		if ( ContainsAny( text, "DOOR", "TUER", "TÜR" ) ) return GothicInteractionKind.Door;
+		if ( ContainsAny( text, "BED", "BETT" ) ) return GothicInteractionKind.Bed;
+		if ( ContainsAny( text, "LEVER", "SWITCH", "BUTTON", "WINCH", "WHEEL", "SCHALTER", "HEBEL" ) ) return GothicInteractionKind.Switch;
+		if ( ContainsAny( text, "MOBINTER", "INTERACTIVEOBJECT" ) ) return GothicInteractionKind.Generic;
+		return GothicInteractionKind.None;
+	}
+
+	private static string ReadString( object instance, string member ) =>
+		( ZenKitRuntime.GetProperty( instance, member ) ?? ZenKitRuntime.GetField( instance, member ) )?.ToString() ?? string.Empty;
+
+	private static bool ContainsAny( string value, params string[] markers ) =>
+		markers.Any( marker => value.Contains( marker, StringComparison.OrdinalIgnoreCase ) );
 
 	internal static Transform GetTransform( object vob )
 	{

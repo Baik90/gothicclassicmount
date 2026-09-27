@@ -100,6 +100,13 @@ public sealed partial class GothicClassicMount : BaseGameMount
 			if ( string.IsNullOrWhiteSpace( extension ) )
 				continue;
 
+			if ( extension.Equals( ".WAV", StringComparison.OrdinalIgnoreCase ) )
+			{
+				var soundPath = IOPath.Combine( InternalMountRoot, "sounds", MountVersion, file.VirtualPath ).Replace( '\\', '/' ).ToLowerInvariant();
+				context.Add( ResourceType.Sound, soundPath, new GothicSoundResource( file.VirtualPath ) );
+				continue;
+			}
+
 			if ( IsWorldExtension( extension ) && IsWorldPath( file.VirtualPath ) && IsRenderableWorld( file.VirtualPath ) )
 			{
 				_assetDescriptors[file.VirtualPath] = BuildAssetDescriptor( file.VirtualPath, true );
@@ -110,11 +117,17 @@ public sealed partial class GothicClassicMount : BaseGameMount
 			}
 			else if ( IsModelExtension( extension ) )
 			{
+				// Some MDLs (e.g. FIREPLACE_GROUND_USE) contain only interaction nodes.
+				// They are valid Gothic assets, but cannot be exposed as renderable models/prefabs.
+				if ( !HasModelGeometry( file.VirtualPath, extension ) )
+				{
+					Log.Info( $"Skipping Gothic hierarchy-only model '{file.VirtualPath}'." );
+					continue;
+				}
 				_assetDescriptors[file.VirtualPath] = BuildAssetDescriptor( file.VirtualPath, false );
 				_mountedModelPaths.Add( file.VirtualPath );
 				context.Add( ResourceType.Model, ToInternalMountedModelPath( file.VirtualPath ), new GothicModelResource( file.VirtualPath ) );
-				if ( extension.Equals( ".MRM", StringComparison.OrdinalIgnoreCase ) || extension.Equals( ".MSH", StringComparison.OrdinalIgnoreCase ) )
-					context.Add( ResourceType.PrefabFile, GetMountedPrefabResourcePath( file.VirtualPath ), new GothicPrefabResource( file.VirtualPath ) );
+				context.Add( ResourceType.PrefabFile, GetMountedPrefabResourcePath( file.VirtualPath ), new GothicPrefabResource( file.VirtualPath ) );
 			}
 		}
 
@@ -897,6 +910,20 @@ public sealed partial class GothicClassicMount : BaseGameMount
 		return new string( chars );
 	}
 
+	private bool HasModelGeometry( string path, string extension )
+	{
+		object mesh;
+		if ( extension.Equals( ".MDL", StringComparison.OrdinalIgnoreCase ) )
+			mesh = ZenKitRuntime.GetProperty( ZenKitRuntime.CreateModel( RequireVfs(), path ), "Mesh" );
+		else if ( extension.Equals( ".MDM", StringComparison.OrdinalIgnoreCase ) )
+			mesh = ZenKitRuntime.CreateModelMesh( RequireVfs(), path );
+		else
+			return true;
+
+		return ZenKitRuntime.GetProperty<int>( mesh, "MeshCount" ) > 0
+			|| ZenKitRuntime.GetProperty<int>( mesh, "AttachmentCount" ) > 0;
+	}
+
 	private static bool IsModelExtension( string extension )
 	{
 		return extension.Equals( ".MRM", StringComparison.OrdinalIgnoreCase )
@@ -952,7 +979,12 @@ public sealed partial class GothicClassicMount : BaseGameMount
 
 	private static string ToEditorModelPath( string virtualPath )
 	{
-		return IOPath.Combine( "models", MountVersion, IOPath.ChangeExtension( virtualPath, ".vmdl" ) )
+		// MDL and MDM with the same stem can contain entirely different meshes.
+		// Keep existing MDL/MRM paths, but give standalone MDM resources their own identity.
+		var modelPath = virtualPath.EndsWith( ".MDM", StringComparison.OrdinalIgnoreCase )
+			? virtualPath + ".vmdl"
+			: IOPath.ChangeExtension( virtualPath, ".vmdl" );
+		return IOPath.Combine( "models", MountVersion, modelPath )
 			.Replace( '\\', '/' )
 			.ToLowerInvariant();
 	}

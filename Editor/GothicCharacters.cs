@@ -7,6 +7,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using NMatrix = System.Numerics.Matrix4x4;
+using NVector3 = System.Numerics.Vector3;
 using Sandbox.Mounting;
 
 namespace GothicClassicMount;
@@ -64,6 +66,14 @@ public sealed partial class GothicClassicMount
 			var t = CharacterTransform(bone.Global);
 			builder.AddBone(bone.Name,t.Position,t.Rotation,bone.Parent<0 ? null : bones[bone.Parent].Name);
 		}
+		if ( IsHumanoidCharacter( d ) )
+		{
+			var physicsBodyCount = AddHumanoidRagdollPhysics( builder, bones );
+			if ( physicsBodyCount == 0 )
+				Log.Warning( $"Gothic character model '{d.Instance}' has no mapped ragdoll bones; check HUMANS.MDH bone names." );
+			else
+				Log.Info( $"Gothic character model '{d.Instance}': added {physicsBodyCount} model-level ragdoll bodies." );
+		}
 		foreach(var animation in _characterMeshes.ReadAnimations(d))
 		{
 			var clip=builder.AddAnimation(animation.Name,animation.Fps).WithLooping(animation.Looping);
@@ -113,6 +123,94 @@ public sealed partial class GothicClassicMount
 				animation.RootMotion.Select( p => new Vector3( p.X, p.Y, p.Z ) ).ToArray() ) ) );
 		return model;
 	}
+
+	private static bool IsHumanoidCharacter( GothicCharacterDefinition d ) =>
+		string.Equals( System.IO.Path.GetFileNameWithoutExtension( d.Visual ), "HUMANS", StringComparison.OrdinalIgnoreCase );
+
+	private sealed record RagdollBone( string Key, string[] Names, string Parent, float Radius, float Mass, bool Sphere = false );
+	private sealed record RagdollBody( RagdollBone Definition, int BoneIndex, int BodyIndex );
+
+	private static readonly RagdollBone[] HumanoidRagdollBones =
+	[
+		new( "pelvis", ["BIP01 PELVIS"], null, 6.5f, 5f ),
+		new( "spine", ["BIP01 SPINE"], "pelvis", 5.2f, 3f ),
+		new( "spine1", ["BIP01 SPINE1"], "spine", 4.8f, 3f ),
+		new( "spine2", ["BIP01 SPINE2"], "spine1", 4.4f, 2.5f ),
+		new( "neck", ["BIP01 NECK"], "spine2", 2.5f, 0.8f ),
+		new( "head", ["BIP01 HEAD"], "neck", 4.5f, 2f, Sphere: true ),
+		new( "l_upperarm", ["BIP01 L UPPERARM", "BIP01 L ARM"], "spine2", 2.8f, 1.8f ),
+		new( "l_forearm", ["BIP01 L FOREARM"], "l_upperarm", 2.3f, 1.2f ),
+		new( "l_hand", ["BIP01 L HAND"], "l_forearm", 1.8f, 0.5f, Sphere: true ),
+		new( "r_upperarm", ["BIP01 R UPPERARM", "BIP01 R ARM"], "spine2", 2.8f, 1.8f ),
+		new( "r_forearm", ["BIP01 R FOREARM"], "r_upperarm", 2.3f, 1.2f ),
+		new( "r_hand", ["BIP01 R HAND"], "r_forearm", 1.8f, 0.5f, Sphere: true ),
+		new( "l_thigh", ["BIP01 L THIGH"], "pelvis", 4f, 4f ),
+		new( "l_calf", ["BIP01 L CALF"], "l_thigh", 3f, 2.5f ),
+		new( "l_foot", ["BIP01 L FOOT"], "l_calf", 2.8f, 0.8f, Sphere: true ),
+		new( "r_thigh", ["BIP01 R THIGH"], "pelvis", 4f, 4f ),
+		new( "r_calf", ["BIP01 R CALF"], "r_thigh", 3f, 2.5f ),
+		new( "r_foot", ["BIP01 R FOOT"], "r_calf", 2.8f, 0.8f, Sphere: true )
+	];
+
+	private static int AddHumanoidRagdollPhysics( ModelBuilder builder, GothicCharacterBone[] bones )
+	{
+		var boneIndices = bones.Select( ( bone, index ) => (bone.Name, index) )
+			.ToDictionary( x => x.Name, x => x.index, StringComparer.OrdinalIgnoreCase );
+		var present = HumanoidRagdollBones
+			.Select( definition => (Definition: definition, BoneIndex: definition.Names.Select( name => boneIndices.TryGetValue( name, out var index ) ? index : -1 ).FirstOrDefault( index => index >= 0, -1 )) )
+			.Where( x => x.BoneIndex >= 0 )
+			.ToArray();
+		if ( !present.Any( x => x.Definition.Key == "pelvis" ) || !present.Any( x => x.Definition.Key == "head" ) )
+			return 0;
+
+		var bodies = new List<RagdollBody>();
+		foreach ( var item in present )
+		{
+			var bone = bones[item.BoneIndex];
+			var body = builder.AddBody( item.Definition.Mass, null, bone.Name );
+			var child = present.FirstOrDefault( candidate => candidate.Definition.Parent == item.Definition.Key );
+			if ( item.Definition.Sphere || child.Definition is null )
+			{
+				body.AddSphere( new Sphere( Vector3.Zero, item.Definition.Radius ), Transform.Zero );
+			}
+			else
+			{
+				var childPosition = new NVector3( bones[child.BoneIndex].Global.M41, bones[child.BoneIndex].Global.M42, bones[child.BoneIndex].Global.M43 );
+				if ( !NMatrix.Invert( bone.Global, out var inverseBone ) )
+					throw new InvalidDataException( $"Cannot build ragdoll segment for bone {bone.Name}." );
+				var localEnd = NVector3.Transform( childPosition, inverseBone );
+				var end = new Vector3( localEnd.X, localEnd.Y, localEnd.Z );
+				if ( end.Length < 0.1f ) end = Vector3.Up * (item.Definition.Radius * 1.5f);
+				body.AddCapsule( new Capsule( Vector3.Zero, end, item.Definition.Radius ), Transform.Zero );
+			}
+
+			bodies.Add( new RagdollBody( item.Definition, item.BoneIndex, bodies.Count ) );
+		}
+
+		foreach ( var child in bodies )
+		{
+			var parentKey = child.Definition.Parent;
+			while ( parentKey is not null )
+			{
+				var parent = bodies.FirstOrDefault( body => body.Definition.Key == parentKey );
+				if ( parent is not null )
+				{
+					var childOrigin = new NVector3( bones[child.BoneIndex].Global.M41, bones[child.BoneIndex].Global.M42, bones[child.BoneIndex].Global.M43 );
+					if ( !NMatrix.Invert( bones[parent.BoneIndex].Global, out var inverseParent ) )
+						throw new InvalidDataException( $"Cannot build ragdoll joint for bone {bones[child.BoneIndex].Name}." );
+					var localAnchor = NVector3.Transform( childOrigin, inverseParent );
+					var frame1 = new Transform( new Vector3( localAnchor.X, localAnchor.Y, localAnchor.Z ), Rotation.Identity );
+					builder.AddBallJoint( parent.BodyIndex, child.BodyIndex, frame1, Transform.Zero, collision: false )
+						.WithSwingLimit( 45f ).WithTwistLimit( -35f, 35f );
+					break;
+				}
+				parentKey = HumanoidRagdollBones.FirstOrDefault( definition => definition.Key == parentKey )?.Parent;
+			}
+		}
+
+		return bodies.Count;
+	}
+
 	private static Transform CharacterTransform(System.Numerics.Matrix4x4 matrix)
 	{
 		if(!System.Numerics.Matrix4x4.Decompose(matrix,out _,out var q,out var p)) throw new InvalidDataException("Invalid bone transform.");
@@ -148,6 +246,8 @@ public sealed partial class GothicClassicMount
 				["Sequence"]=new JsonObject { ["Name"]=CharacterIdle(d), ["Looping"]=true }
 			} );
 			components.Add( CharacterAnimatorComponent(d, "root") );
+			if ( IsHumanoidCharacter( d ) )
+				components.Add( CharacterModelPhysicsComponent( d, "root" ) );
 		}
 
 		if ( isPlayerHero )
@@ -195,6 +295,7 @@ public sealed partial class GothicClassicMount
 			["Sequence"]=new JsonObject { ["Name"]=CharacterIdle(d), ["Looping"]=true }
 		} );
 		components.Add( CharacterAnimatorComponent(d, "model") );
+		components.Add( CharacterModelPhysicsComponent( d, "model" ) );
 
 		return new JsonArray( new JsonObject
 		{
@@ -210,6 +311,15 @@ public sealed partial class GothicClassicMount
 		["Renderer"]=CharacterComponentReference(d, "renderer", rendererOwner, "SkinnedModelRenderer"),
 		["Profile"]=string.Equals(System.IO.Path.GetFileNameWithoutExtension(d.Visual), "HUMANS", StringComparison.OrdinalIgnoreCase) ? 0 : 1,
 		["CreatureMovement"]=(int)InferCreatureMovement(d), ["PlaybackRate"]=1f, ["MovementThreshold"]=0.1f
+	};
+
+	// Physics shapes and joints live in the model resource. This component only
+	// instantiates them and keeps their bodies following the animated bones.
+	private JsonObject CharacterModelPhysicsComponent( GothicCharacterDefinition d, string rendererOwner ) => new()
+	{
+		["__type"]="Sandbox.ModelPhysics", ["__guid"]=JsonValue.Create(CharacterId(d.Instance,"model_physics")), ["__enabled"]=true,
+		["Renderer"]=CharacterComponentReference(d, "renderer", rendererOwner, "SkinnedModelRenderer"),
+		["MotionEnabled"]=false, ["IgnoreRoot"]=true
 	};
 
 	private static GothicCreatureMovement InferCreatureMovement( GothicCharacterDefinition d )

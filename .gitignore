@@ -32,3 +32,4 @@ Exports/
 *.vmdl
 *.prefab
 /Code
+*.meta
