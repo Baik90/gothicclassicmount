@@ -107,14 +107,23 @@ public sealed partial class GothicClassicMount
 			mesh.Bounds = BBox.FromPoints(vertices.Select(v=>v.position),0);
 			builder.AddMesh(mesh);
 		}
-		return builder.Create();
+		var model = builder.Create();
+		GothicRootMotionLibrary.Register( model, _characterMeshes.ReadAnimations(d).Select( animation =>
+			new GothicRootMotionClip( animation.Name, animation.Fps, animation.Looping,
+				animation.RootMotion.Select( p => new Vector3( p.X, p.Y, p.Z ) ).ToArray() ) ) );
+		return model;
 	}
 	private static Transform CharacterTransform(System.Numerics.Matrix4x4 matrix)
 	{
 		if(!System.Numerics.Matrix4x4.Decompose(matrix,out _,out var q,out var p)) throw new InvalidDataException("Invalid bone transform.");
 		return new Transform(new Vector3(p.X,p.Y,p.Z),new Rotation(q.X,q.Y,q.Z,q.W));
 	}
-	private string CharacterIdle(GothicCharacterDefinition d) => _characterMeshes.ReadAnimations(d).FirstOrDefault()?.Name;
+	private string CharacterIdle(GothicCharacterDefinition d)
+	{
+		var animations = _characterMeshes.ReadAnimations(d);
+		var isHuman = string.Equals( System.IO.Path.GetFileNameWithoutExtension( d.Visual ), "HUMANS", StringComparison.OrdinalIgnoreCase );
+		return (isHuman ? animations.FirstOrDefault( a => a.Name == "S_FIST" ) : null)?.Name ?? animations.FirstOrDefault()?.Name;
+	}
 	private static string CharacterScale(GothicCharacterDefinition d) => FormattableString.Invariant($"{d.ScaleX},{d.ScaleZ},{d.ScaleY}");
 
 	internal JsonObject CharacterRoot( GothicCharacterDefinition d ) => new()
@@ -122,13 +131,101 @@ public sealed partial class GothicClassicMount
 		["__guid"] = JsonValue.Create(CharacterId(d.Instance,"root")), ["__version"]=2,
 		["Name"] = $"{d.Name} ({d.Instance})", ["Enabled"]=true,
 		["Position"]="0,0,0", ["Rotation"]="0,0,0,1", ["Scale"]=CharacterScale(d), ["Tags"]="gothic_character",
-		["Components"]=new JsonArray(new JsonObject
+		["Components"]=CharacterComponents(d), ["Children"]=CharacterChildren(d)
+	};
+
+	private JsonArray CharacterComponents( GothicCharacterDefinition d )
+	{
+		var isPlayerHero = string.Equals( d.Instance, "PC_HERO", StringComparison.OrdinalIgnoreCase );
+		var components = new JsonArray();
+		if ( !isPlayerHero )
+		{
+			components.Add( new JsonObject
+			{
+				["__type"]="Sandbox.SkinnedModelRenderer", ["__guid"]=JsonValue.Create(CharacterId(d.Instance,"renderer")),
+				["__enabled"]=true, ["Model"]=GetMountedResourceUri(CharacterModelPath(d)),
+				["UseAnimGraph"]=false, ["CreateBoneObjects"]=false,
+				["Sequence"]=new JsonObject { ["Name"]=CharacterIdle(d), ["Looping"]=true }
+			} );
+			components.Add( CharacterAnimatorComponent(d, "root") );
+		}
+
+		if ( isPlayerHero )
+		{
+			components.Add( new JsonObject
+			{
+				["__type"]="Sandbox.PlayerController", ["__guid"]=JsonValue.Create(CharacterId(d.Instance,"player_controller")), ["__enabled"]=true,
+				["UseInputControls"]=false, ["UseLookControls"]=true, ["UseCameraControls"]=true,
+				["UseAnimatorControls"]=false, ["ThirdPerson"]=true, ["CameraOffset"]="220,0,35",
+				["WalkSpeed"]=110, ["RunSpeed"]=260, ["JumpSpeed"]=260, ["BodyRadius"]=18, ["BodyHeight"]=72,
+				["UseButton"]="Use", ["EnablePressing"]=true,
+				["Renderer"]=CharacterComponentReference(d, "renderer", "model", "SkinnedModelRenderer")
+			} );
+			components.Add( new JsonObject
+			{
+				["__type"]=typeof(GothicCharacterAI).FullName, ["__guid"]=JsonValue.Create(CharacterId(d.Instance,"gothic_ai")), ["__enabled"]=true,
+				["Controller"]=CharacterComponentReference(d, "player_controller", "root", "PlayerController"),
+				["Renderer"]=CharacterComponentReference(d, "renderer", "model", "SkinnedModelRenderer"),
+				["Animator"]=CharacterComponentReference(d, "animator", "model", nameof(GothicAnimator)),
+				["BackwardSpeedScale"]=0.65f, ["StrafeSpeedScale"]=0.75f, ["TurnSpeed"]=540f
+			} );
+			components.Add( new JsonObject
+			{
+				["__type"]=typeof(GothicHeroController).FullName, ["__guid"]=JsonValue.Create(CharacterId(d.Instance,"gothic_controller")), ["__enabled"]=true,
+				["CharacterAI"]=CharacterComponentReference(d, "gothic_ai", "root", nameof(GothicCharacterAI)),
+				["Controller"]=CharacterComponentReference(d, "player_controller", "root", "PlayerController"),
+				["HeroRenderer"]=CharacterComponentReference(d, "renderer", "model", "SkinnedModelRenderer"),
+				["Animator"]=CharacterComponentReference(d, "animator", "model", nameof(GothicAnimator))
+			} );
+		}
+
+		return components;
+	}
+
+	private JsonArray CharacterChildren( GothicCharacterDefinition d )
+	{
+		if ( !string.Equals( d.Instance, "PC_HERO", StringComparison.OrdinalIgnoreCase ) )
+			return new JsonArray();
+
+		var components = new JsonArray( new JsonObject
 		{
 			["__type"]="Sandbox.SkinnedModelRenderer", ["__guid"]=JsonValue.Create(CharacterId(d.Instance,"renderer")),
 			["__enabled"]=true, ["Model"]=GetMountedResourceUri(CharacterModelPath(d)),
 			["UseAnimGraph"]=false, ["CreateBoneObjects"]=false,
 			["Sequence"]=new JsonObject { ["Name"]=CharacterIdle(d), ["Looping"]=true }
-		}), ["Children"]=new JsonArray()
+		} );
+		components.Add( CharacterAnimatorComponent(d, "model") );
+
+		return new JsonArray( new JsonObject
+		{
+			["__guid"]=JsonValue.Create(CharacterId(d.Instance,"model")), ["__version"]=2,
+			["Name"]="PC_HERO Model", ["Enabled"]=true, ["Position"]="0,0,0", ["Rotation"]="0,0,0,1", ["Scale"]="1,1,1",
+			["Components"]=components, ["Children"]=new JsonArray()
+		} );
+	}
+
+	private JsonObject CharacterAnimatorComponent( GothicCharacterDefinition d, string rendererOwner ) => new()
+	{
+		["__type"]=typeof(GothicAnimator).FullName, ["__guid"]=JsonValue.Create(CharacterId(d.Instance,"animator")), ["__enabled"]=true,
+		["Renderer"]=CharacterComponentReference(d, "renderer", rendererOwner, "SkinnedModelRenderer"),
+		["Profile"]=string.Equals(System.IO.Path.GetFileNameWithoutExtension(d.Visual), "HUMANS", StringComparison.OrdinalIgnoreCase) ? 0 : 1,
+		["CreatureMovement"]=(int)InferCreatureMovement(d), ["PlaybackRate"]=1f, ["MovementThreshold"]=0.1f
+	};
+
+	private static GothicCreatureMovement InferCreatureMovement( GothicCharacterDefinition d )
+	{
+		var visual = System.IO.Path.GetFileNameWithoutExtension( d.Visual ?? string.Empty );
+		if ( new[] { "BLOODFLY", "HARPY", "DRAGON", "WISP" }.Any( name => visual.Contains( name, StringComparison.OrdinalIgnoreCase ) ) )
+			return GothicCreatureMovement.Flying;
+		if ( visual.Contains( "SWAMP", StringComparison.OrdinalIgnoreCase ) || visual.Contains( "WATER", StringComparison.OrdinalIgnoreCase ) )
+			return GothicCreatureMovement.Swimming;
+		return GothicCreatureMovement.Ground;
+	}
+
+	private static JsonObject CharacterComponentReference( GothicCharacterDefinition d, string component, string gameObject, string componentType ) => new()
+	{
+		["_type"]="component", ["component_id"]=CharacterId(d.Instance,component).ToString(),
+		["go"]=CharacterId(d.Instance,gameObject).ToString(), ["component_type"]=componentType
 	};
 	private static Guid CharacterId( string instance, string part ) => new(SHA256.HashData(Encoding.UTF8.GetBytes($"gothicclassic:character:{instance}:{part}")).AsSpan(0,16));
 
@@ -138,7 +235,7 @@ public sealed partial class GothicClassicMount
 		System.IO.Directory.CreateDirectory(root);
 		var options = new JsonSerializerOptions { WriteIndented=true };
 		File.WriteAllText(System.IO.Path.Combine(root,"catalog.json"),JsonSerializer.Serialize(Characters,options),Encoding.UTF8);
-		var created=0; var existing=0; var upgraded=0;
+		var created=0; var existing=0; var upgraded=0; var animatorAdded=0;
 		foreach(var d in Characters.Where(d=>d.Error is null))
 		{
 			var path=System.IO.Path.Combine(root,CharacterFileName(d)+".prefab");
@@ -150,24 +247,59 @@ public sealed partial class GothicClassicMount
 				var renderer=(rootObject?["Components"] as JsonArray)?.OfType<JsonObject>().FirstOrDefault(c=>
 					c["__guid"]?.ToString()==CharacterId(d.Instance,"renderer").ToString() &&
 					c["__type"]?.ToString()=="Sandbox.ModelRenderer" && c["Model"]?.ToString()==GetMountedResourceUri(CharacterModelPath(d)));
+				var changed=false;
+				var childModel=(rootObject?["Children"] as JsonArray)?.OfType<JsonObject>().FirstOrDefault(c=>c["__guid"]?.ToString()==CharacterId(d.Instance,"model").ToString());
+				var rendererOwner=childModel is null ? "root" : "model";
+				var rendererComponents=(rendererOwner=="root" ? rootObject?["Components"] : childModel?["Components"]) as JsonArray;
+				if(rendererComponents is null && d.Instance.Equals("PC_HERO",StringComparison.OrdinalIgnoreCase))
+				{
+					childModel=new JsonObject
+					{
+						["__guid"]=CharacterId(d.Instance,"model").ToString(), ["__version"]=2,
+						["Name"]="PC_HERO Model", ["Enabled"]=true, ["Position"]="0,0,0", ["Rotation"]="0,0,0,1", ["Scale"]="1,1,1",
+						["Components"]=new JsonArray(new JsonObject
+						{
+							["__type"]="Sandbox.SkinnedModelRenderer", ["__guid"]=CharacterId(d.Instance,"renderer").ToString(),
+							["__enabled"]=true, ["Model"]=GetMountedResourceUri(CharacterModelPath(d)),
+							["UseAnimGraph"]=false, ["CreateBoneObjects"]=false,
+							["Sequence"]=new JsonObject { ["Name"]=CharacterIdle(d), ["Looping"]=true }
+						}), ["Children"]=new JsonArray()
+					};
+					(rootObject["Children"] as JsonArray)?.Add(childModel);
+					rendererOwner="model";
+					rendererComponents=childModel["Components"] as JsonArray;
+					changed=true;
+				}
+				var animatorExists=(rendererComponents?.OfType<JsonObject>() ?? Enumerable.Empty<JsonObject>()).Any(c=>
+					c["__guid"]?.ToString()==CharacterId(d.Instance,"animator").ToString());
+				if(!animatorExists && rendererComponents is not null)
+				{
+					rendererComponents.Add(CharacterAnimatorComponent(d,rendererOwner));
+					animatorAdded++;
+					changed=true;
+				}
 				if(renderer is not null)
 				{
 					renderer["__type"]="Sandbox.SkinnedModelRenderer";
 					renderer["UseAnimGraph"]=false; renderer["CreateBoneObjects"]=false;
 					renderer["Sequence"]=new JsonObject { ["Name"]=CharacterIdle(d), ["Looping"]=true };
 					if(rootObject["Scale"]?.ToString()=="1,1,1") rootObject["Scale"]=CharacterScale(d);
-					File.WriteAllText(path,saved.ToJsonString(options),Encoding.UTF8);
-					CompileCharacterPrefab(path);
 					upgraded++;
+					changed=true;
 				}
 				else existing++;
+				if(changed)
+				{
+					File.WriteAllText(path,saved.ToJsonString(options),Encoding.UTF8);
+					CompileCharacterPrefab(path);
+				}
 				continue;
 			}
 			var json=new JsonObject { ["RootObject"]=CharacterRoot(d), ["ResourceVersion"]=2, ["__version"]=2, ["ShowInMenu"]=true, ["MenuPath"]="Gothic/Characters" };
 			File.WriteAllText(path,json.ToJsonString(options),Encoding.UTF8);
 			CompileCharacterPrefab(path); created++;
 		}
-		Log.Info($"Gothic character prefabs: created={created}, upgraded={upgraded}, existing={existing}, unavailable={Characters.Count(d=>d.Error is not null)}. Assets/characters/gothic_classic");
+		Log.Info($"Gothic character prefabs: created={created}, upgraded={upgraded}, animators added={animatorAdded}, existing={existing}, unavailable={Characters.Count(d=>d.Error is not null)}. Assets/characters/gothic_classic");
 	}
 	private static void CompileCharacterPrefab(string path)
 	{

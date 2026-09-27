@@ -31,3 +31,4 @@ code/Properties/*
 Exports/
 *.vmdl
 *.prefab
+/Code

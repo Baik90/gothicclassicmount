@@ -8,15 +8,35 @@ using NVector3 = System.Numerics.Vector3;
 
 namespace GothicClassicMount;
 
-internal sealed record GothicCharacterAnimation(string Name, float Fps, bool Looping, NMatrix[][] Frames);
+internal sealed record GothicCharacterAnimation(string Name, float Fps, bool Looping, NMatrix[][] Frames, NVector3[] RootMotion);
 
 internal sealed partial class GothicCharacterMeshReader
 {
-	// A small useful set per model, rather than duplicating thousands of clips for every NPC.
+	// Curated gameplay clips; importing every HUMANS sequence would duplicate hundreds of large clips per NPC model.
 	internal static readonly string[] DefaultAnimationNames =
 	[
-		"S_RUN", "S_WALK", "S_FISTRUN", "S_FISTWALK", "S_IDLE", "S_STAND", "S_RUNL", "S_WALKL", "S_FISTRUNL", "S_FISTWALKL",
-		"S_FLY", "S_FLYL", "S_SWIM", "S_SWIMF"
+		// Verified Gothic 1 HUMANS.MDS sequences: locomotion starts, loops and transitions.
+		"S_FIST", "S_WALK", "S_WALKL", "S_WALKWL", "S_RUN", "S_RUNL",
+		"S_FISTWALKL", "S_FISTRUN", "S_FISTRUNL",
+		"S_FLY", "S_FLYL", "S_SWIM", "S_SWIMF",
+		"T_WALK_2_WALKL", "T_WALKL_2_WALK", "T_RUN_2_RUNL", "T_RUNL_2_RUN",
+		"T_FISTWALK_2_FISTWALKL", "T_FISTWALKL_2_FISTWALK", "T_FISTRUN_2_FISTRUNL", "T_FISTRUNL_2_FISTRUN",
+		// Turning while running and walking backwards (the quick backstep is a transition, not a loop).
+		"T_RUNTURNL", "T_RUNTURNR", "T_WALKWTURNL", "T_WALKWTURNR", "T_WALKBL_2_WALK",
+		"T_RUNSTRAFEL", "T_RUNSTRAFER", "T_WALKSTRAFEL", "T_WALKSTRAFER",
+		// Jumping, falling, landing and getting back up.
+		"S_JUMP", "S_JUMPUP", "S_JUMPUPLOW", "S_JUMPUPMID", "S_FALL", "S_FALLB", "S_FALLDN", "S_FALLEN", "S_FALLENB",
+		"T_STAND_2_JUMP", "T_STAND_2_JUMPUP", "T_STAND_2_JUMPUPLOW", "T_STAND_2_JUMPUPMID",
+		"T_JUMP_2_STAND", "T_JUMP_2_HANG", "T_JUMPB", "T_RUNL_2_JUMP", "T_RUNR_2_JUMP",
+		"T_JUMPUPLOW_2_STAND", "T_JUMPUPMID_2_STAND", "T_FALL_2_FALLEN", "T_FALLB_2_FALLENB",
+		"T_FALLDN_2_STAND", "T_FALLEN_2_STAND", "T_FALLENB_2_STAND", "S_DEAD", "S_DEADB", "T_DEAD", "T_DEADB",
+		"S_1HATTACK", "S_2HATTACK", "S_FISTATTACK", "T_1HATTACKL", "T_1HATTACKR", "T_1HATTACKMOVE",
+		"T_2HATTACKL", "T_2HATTACKR", "T_FISTATTACKMOVE", "T_GOTHIT",
+		// Picking herbs and taking an item from a chest.
+		"S_HERB_S0", "S_HERB_S1", "T_HERB_STAND_2_S0", "T_HERB_S0_2_STAND", "T_HERB_S0_2_S1", "T_HERB_S1_2_S0",
+		"S_CHESTSMALL_S0", "S_CHESTSMALL_S1", "T_CHESTSMALL_STAND_2_S0", "T_CHESTSMALL_S0_PICKLEFT", "T_CHESTSMALL_S0_2_S1", "T_CHESTSMALL_S1_2_S0",
+		"S_CHESTBIG_S0", "S_CHESTBIG_S1", "T_CHESTBIG_STAND_2_S0", "T_CHESTBIG_S0_PICKLEFT", "T_CHESTBIG_S0_2_S1", "T_CHESTBIG_S1_2_S0",
+		"T_DOOR_FRONT_S0_PICKLEFT", "T_DOOR_FRONT_S0_PICKRIGHT", "T_DOOR_BACK_S0_PICKLEFT", "T_DOOR_BACK_S0_PICKRIGHT"
 	];
 	private readonly Dictionary<string, GothicCharacterBone[]> _skeletons = new(StringComparer.OrdinalIgnoreCase);
 	private readonly Dictionary<string, List<GothicCharacterAnimation>> _animations = new(StringComparer.OrdinalIgnoreCase);
@@ -71,6 +91,10 @@ internal sealed partial class GothicCharacterMeshReader
 			if(frameCount<=0 || !float.IsFinite(fps) || fps<=0 || samples.Length!=frameCount*indices.Length || indices.Any(i=>i<0||i>=bones.Length) || indices.Distinct().Count()!=indices.Length)
 				throw new InvalidDataException($"Invalid animation samples: {filename}");
 			var frames=new NMatrix[frameCount][];
+			var rootMotion=new NVector3[frameCount];
+			var rootBone=Array.FindIndex(bones,b=>b.Parent<0);
+			var rootOrigin=bones[rootBone].Local.Translation;
+			var hasRootSample=false;
 			for(int f=0;f<frameCount;f++)
 			{
 				frames[f]=bones.Select(b=>b.Local).ToArray();
@@ -82,21 +106,27 @@ internal sealed partial class GothicCharacterMeshReader
 					if(!float.IsFinite(position.X) || !float.IsFinite(position.Y) || !float.IsFinite(position.Z) ||
 						!float.IsFinite(rotation.LengthSquared()) || rotation.LengthSquared()<0.0001f)
 						throw new InvalidDataException($"Non-finite animation transform: {filename}");
-					// Locomotion previews run in place; keep vertical bob but remove horizontal travel.
-					// A game controller moves the GameObject, rather than letting its mesh drift away.
-					if(bones[indices[n]].Parent<0 && (name.EndsWith("L",StringComparison.Ordinal) || name=="S_SWIMF"))
-					{
-						var first=(NVector3)Field(samples[n],"Position");
-						position.X=first.X; position.Z=first.Z;
-					}
 					// MAN quaternions use the inverse rotation convention of Numerics.
 					var local=NMatrix.CreateFromQuaternion(Quaternion.Conjugate(Quaternion.Normalize(rotation)));
 					local.Translation=position;
+					var converted=ConvertBoneTransform(local);
+					if(indices[n]==rootBone)
+					{
+						if(!hasRootSample) { rootOrigin=converted.Translation; hasRootSample=true; }
+						var rootDelta=converted.Translation-rootOrigin;
+						// Gothic uses a horizontal root trajectory for locomotion. Extract its
+						// ground-plane motion for the actor, while retaining vertical animation
+						// (jump/fall) in the skeleton pose.
+						rootMotion[f]=new NVector3(rootDelta.X,rootDelta.Y,0);
+						converted.Translation=new NVector3(rootOrigin.X,rootOrigin.Y,converted.Translation.Z);
+					}
 					// Root samples already include their height. Do not add MDH.RootTranslation again.
-					frames[f][indices[n]]=ConvertBoneTransform(local);
+					frames[f][indices[n]]=converted;
 				}
 			}
-			result.Add(new(name,fps,true,frames));
+			var looping = name.StartsWith("S_", StringComparison.OrdinalIgnoreCase) &&
+				(name.EndsWith("L", StringComparison.OrdinalIgnoreCase) || name is "S_FIST" or "S_FLY" or "S_SWIM");
+			result.Add(new(name,fps,looping,frames,rootMotion));
 		}
 		return _animations[definition.Visual]=result;
 	}
